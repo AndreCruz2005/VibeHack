@@ -1,253 +1,173 @@
-# 🎓 VibeHack - Sistema de Escolha de Instituições de Ensino Superior
+# ESTIMA EDUCAÇÃO - Conectando Periferias à Educação de Qualidade
 
-Um sistema web moderno que auxilia estudantes na escolha de instituições de ensino superior, considerando fatores como orçamento, avaliação do MEC, avaliação de estudantes, infraestrutura e localização.
+## 🎯 Objetivo
 
-## ⚡ Quick Start
+O ESTIMA EDUCAÇÃO é uma plataforma inovadora que conecta pessoas da periferia com oportunidades educacionais de qualidade. Nosso foco é tornar a **motivação mais engajante** para pessoas da periferia, considerando a **falta de orientação profissional ou de carreira**.
+
+## 🌟 Funcionalidades Principais
+
+### 🗺️ **Busca por Proximidade**
+- Localização automática do usuário
+- Busca de faculdades, escolas técnicas e bibliotecas próximas
+- Cálculo de distância e custos de transporte
+- Informações sobre alimentação e custos acadêmicos
+
+### 🎓 **Informações Detalhadas das Instituições**
+- **Dados acadêmicos**: ENADE, IGC, qualidade dos cursos
+- **Custos completos**: mensalidade, material, transporte, alimentação
+- **Formas de ingresso**: ENEM, SSA, vestibular próprio
+- **Bolsas disponíveis**: Prouni, FIES, bolsas institucionais
+
+### ⚠️ **Avisos Importantes**
+- **Golpes praticados** por algumas instituições
+- **Percentual de EAD** em cursos presenciais (40% em algumas)
+- **Qualidade das práticas acadêmicas**
+- **Acesso à biblioteca** (público ou restrito)
+
+### 💡 **Motivação para Pessoas da Periferia**
+- **Histórias de sucesso** de pessoas da periferia
+- **Programas de apoio** específicos
+- **Orientação profissional** gratuita
+- **Apoio financeiro** e bolsas
+
+### 🔍 **Filtros Específicos para Periferia**
+- **Instituições gratuitas**
+- **Bolsas disponíveis**
+- **Orientação profissional**
+- **Transporte gratuito**
+
+## 🏫 Instituições Cadastradas
+
+### **Universidades Públicas**
+- **UFPE** - Universidade Federal de Pernambuco
+- **UPE** - Universidade de Pernambuco
+- **IFPE** - Instituto Federal de Pernambuco
+
+### **Faculdades Privadas**
+- **FAFIRE** - Faculdade Frassinetti do Recife
+- **UNIBRA** - Centro Universitário Brasileiro
+- **CESAR School** - Foco em tecnologia e inovação
+- **Faculdade Nova Roma**
+- **UNIFG** - Centro Universitário dos Guararapes
+- **Estácio** - Centro Universitário Estácio do Recife
+- **UNOPAR** - Universidade Norte do Paraná
+- **UNICAP** - Universidade Católica de Pernambuco
+
+### **Bibliotecas**
+- **Biblioteca Pública Estadual**
+- **Biblioteca Central da UFPE**
+
+## 🚀 Como Usar
+
+### 1. **Busca por Proximidade**
+- Clique em "FACULDADES PRÓXIMAS"
+- Visualize instituições próximas no mapa
+- Veja custos de transporte e distância
+
+### 2. **Filtros para Periferia**
+- **GRATUITAS**: Apenas instituições públicas
+- **BOLSAS**: Instituições com Prouni/FIES
+- **ORIENTAÇÃO**: Com orientação profissional
+- **TRANSPORTE**: Com transporte gratuito
+
+### 3. **Busca por Curso**
+- Digite o nome do curso
+- Veja todas as instituições que oferecem
+- Compare qualidade e custos
+
+### 4. **Informações Detalhadas**
+- Clique em uma instituição no mapa
+- Veja histórias de sucesso da periferia
+- Acesse avisos sobre golpes e práticas
+- Compare cursos e custos
+
+## 🎯 Foco na Periferia
+
+### **Motivação Engajante**
+- **Histórias reais** de pessoas da periferia que conseguiram
+- **Programas específicos** de apoio
+- **Orientação profissional** gratuita
+- **Bolsas e descontos** especiais
+
+### **Informações Transparentes**
+- **Avisos sobre golpes** praticados
+- **Percentual de EAD** em cursos presenciais
+- **Qualidade real** das práticas acadêmicas
+- **Custos completos** incluindo transporte
+
+### **Orientação Profissional**
+- **Falta de orientação** é um problema real
+- **Programas gratuitos** de orientação
+- **Mentoria** para estudantes da periferia
+- **Apoio psicológico** e motivacional
+
+## 🛠️ Tecnologias
+
+- **React** + **TypeScript**
+- **Vite** para build
+- **Tailwind CSS** para estilização
+- **Lucide React** para ícones
+- **Leaflet** para mapas
+
+## 📊 Dados Incluídos
+
+### **Informações Acadêmicas**
+- ENADE Score (qualidade do curso)
+- IGC Score (qualidade da instituição)
+- Duração dos cursos
+- Vagas disponíveis
+- Turnos (integral/noturno)
+
+### **Custos Detalhados**
+- Mensalidade
+- Material didático
+- Transporte
+- Alimentação
+- Custo total mensal
+
+### **Apoio à Periferia**
+- Histórias de sucesso
+- Programas de inclusão
+- Orientação profissional
+- Apoio financeiro
+- Transporte gratuito
+
+## 🎨 Interface
+
+- **Design moderno** e responsivo
+- **Tema escuro/claro**
+- **Animações suaves**
+- **Interface intuitiva**
+- **Foco na acessibilidade**
+
+## 🚀 Instalação
 
 ```bash
 # Clone o repositório
-git clone <URL_DO_REPOSITORIO>
-cd VibeHack
+git clone https://github.com/seu-usuario/estima-educacao.git
+
+# Entre na pasta
+cd estima-educacao
 
 # Instale as dependências
-npm run install:all
+npm install
 
 # Execute o projeto
 npm run dev
 ```
 
-Acesse: **http://localhost:5173**
+## 📱 Acesso
 
-## 🚀 Funcionalidades
+Acesse a aplicação em: `http://localhost:5173`
 
-### Principais
-- **Busca Avançada**: Filtros por preço, avaliações, localização e infraestrutura
-- **Comparação**: Compare até 4 instituições lado a lado
-- **Favoritos**: Salve suas instituições preferidas
-- **Detalhes Completos**: Informações detalhadas sobre cada instituição
-- **Avaliações**: Sistema de avaliação e comentários dos estudantes
+## 🤝 Contribuição
 
-### Filtros Disponíveis
-- **Orçamento**: Faixa de preço (mensalidade)
-- **Avaliação MEC**: Nota mínima de 1 a 5
-- **Avaliação Estudantes**: Nota mínima de 1 a 5
-- **Infraestrutura**: Biblioteca, laboratórios, Wi-Fi, estacionamento, etc.
-- **Localização**: Estado e cidade
-- **Tipo de Curso**: Bacharelado, Licenciatura, Tecnólogo, Pós-graduação
-
-## 🛠️ Tecnologias
-
-### Frontend
-- **React 19** + TypeScript
-- **React Router v7** - Roteamento
-- **Tailwind CSS** - Estilização
-- **Vite** - Build tool
-- **Context API** - Gerenciamento de estado
-
-### Backend (Futuro)
-- **Node.js** + Express
-- **Banco de dados** (a definir)
-
-## 📁 Estrutura do Projeto
-
-```
-VibeHack/
-├── front/                          # Frontend React
-│   ├── app/
-│   │   ├── components/             # Componentes React
-│   │   │   ├── search/            # Filtros de busca
-│   │   │   ├── institution/       # Cards e detalhes de instituições
-│   │   │   ├── comparison/        # Comparação de instituições
-│   │   │   ├── favorites/         # Lista de favoritos
-│   │   │   ├── review/           # Formulário de avaliação
-│   │   │   └── layout/           # Header e layout
-│   │   ├── contexts/             # Contextos React (Favoritos, Comparação)
-│   │   ├── routes/               # Páginas da aplicação
-│   │   ├── services/             # Serviços de API
-│   │   ├── types/                # Tipos TypeScript
-│   │   └── root.tsx              # Configuração principal
-│   ├── public/                   # Arquivos estáticos
-│   ├── package.json              # Dependências do frontend
-│   └── README.md                 # Documentação do frontend
-├── back/                         # Backend (futuro)
-│   ├── server.js                 # Servidor Express básico
-│   └── package.json              # Dependências do backend
-└── README.md                     # Este arquivo
-```
-
-## 🚀 Como Executar Localmente
-
-### Pré-requisitos
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** ou **yarn** (vem com Node.js)
-- **Git** ([Download](https://git-scm.com/))
-
-### 1. Clone o Repositório
-```bash
-git clone <URL_DO_REPOSITORIO>
-cd VibeHack
-```
-
-### 2. Instale Todas as Dependências
-```bash
-# Opção 1: Instalar tudo de uma vez (recomendado)
-npm run install:all
-
-# Opção 2: Instalar manualmente
-cd front && npm install
-cd ../back && npm install
-```
-
-### 3. Execute o Projeto
-```bash
-# Opção 1: Executar frontend e backend juntos
-npm run dev
-
-# Opção 2: Executar apenas o frontend
-npm run dev:front
-
-# Opção 3: Executar apenas o backend
-npm run dev:back
-```
-
-**URLs de acesso:**
-- **Frontend**: http://localhost:5173
-- **Backend**: http://localhost:3000
-
-## 📊 Dados de Exemplo
-
-O sistema inclui dados mockados de 22 instituições de ensino superior, incluindo:
-
-### Universidades Públicas
-- Universidade Federal de São Paulo (UNIFESP)
-- Universidade de São Paulo (USP)
-- Universidade Federal do Rio de Janeiro (UFRJ)
-- Universidade Estadual de Campinas (UNICAMP)
-- Universidade Federal de Minas Gerais (UFMG)
-
-### Universidades Privadas
-- Pontifícia Universidade Católica de São Paulo (PUC-SP)
-- Universidade Presbiteriana Mackenzie
-- Universidade Anhembi Morumbi
-- Universidade Paulista (UNIP)
-
-### Cursos Disponíveis
-- Medicina, Engenharia, Direito, Administração
-- Ciência da Computação, Psicologia, Fisioterapia
-- Tecnólogos em TI, Design, Marketing
-- E muito mais...
-
-## 🎨 Interface
-
-- **Design responsivo** - Funciona em desktop, tablet e mobile
-- **Componentes reutilizáveis** - Código limpo e organizado
-- **Estados de loading** - Feedback visual durante carregamentos
-- **Navegação intuitiva** - Fácil de usar
-- **Comparação visual** - Tabelas claras para comparação
-
-## 🔧 Configuração de Desenvolvimento
-
-### Scripts Disponíveis
-
-#### Scripts da Raiz (Recomendados)
-```bash
-npm run dev          # Executa frontend e backend juntos
-npm run dev:front    # Executa apenas o frontend
-npm run dev:back     # Executa apenas o backend
-npm run install:all  # Instala todas as dependências
-npm run build        # Build do frontend para produção
-npm run preview      # Preview do build
-npm run lint         # Verificar código
-```
-
-#### Scripts do Frontend
-```bash
-cd front
-npm run dev          # Desenvolvimento com hot reload
-npm run build        # Build para produção
-npm run preview      # Preview do build
-npm run lint         # Verificar código
-```
-
-#### Scripts do Backend
-```bash
-cd back
-npm start           # Inicia o servidor
-npm run dev         # Desenvolvimento com nodemon (se configurado)
-```
-
-### Estrutura de Componentes
-- **InstitutionCard**: Card de instituição com ações
-- **InstitutionDetails**: Página detalhada da instituição
-- **InstitutionComparison**: Comparação lado a lado
-- **SearchFilters**: Filtros avançados de busca
-- **FavoritesList**: Lista de favoritos
-
-### Contextos
-- **FavoritesContext**: Gerencia favoritos globalmente
-- **ComparisonContext**: Gerencia comparações globalmente
-
-## 🔮 Próximos Passos
-
-### Backend
-- [ ] Implementar API REST real
-- [ ] Sistema de autenticação
-- [ ] Banco de dados
-- [ ] Upload de imagens
-
-### Frontend
-- [ ] Sistema de avaliações real
-- [ ] Filtros avançados
-- [ ] Mapa de localização
-- [ ] Notificações
-- [ ] PWA (Progressive Web App)
-
-### Funcionalidades
-- [ ] Chat de suporte
-- [ ] Sistema de recomendações
-- [ ] Exportar comparações
-- [ ] Compartilhar instituições
-
-## 🐛 Solução de Problemas
-
-### Erro de Porta em Uso
-```bash
-# Se a porta 5173 estiver ocupada
-npm run dev -- --port 3001
-```
-
-### Erro de Dependências
-```bash
-# Limpar cache e reinstalar
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Erro de TypeScript
-```bash
-# Verificar tipos
-npm run type-check
-```
-
-## 📝 Contribuição
-
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+Contribuições são bem-vindas! Nosso foco é melhorar a vida das pessoas da periferia através da educação.
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido para o **VibeHack**.
-
-## 👥 Equipe
-
-- Desenvolvido durante hackathon
-- Foco em experiência do usuário
-- Tecnologias modernas
-- Código limpo e documentado
+Este projeto está sob a licença MIT.
 
 ---
 
-**🎓 VibeHack** - Encontre sua instituição ideal! 
+**ESTIMA EDUCAÇÃO** - Conectando periferias à educação de qualidade! 🎓✨ 

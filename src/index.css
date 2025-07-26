@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Variáveis CSS para efeitos translúcidos */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --backdrop-blur: blur(16px);
+  --main-bg: #f8fafc;
+  --main-text: #1a202c;
+  --primary-color: #2563eb;
+  --secondary-color: #dc2626;
+  --accent-color: #059669;
+  --warning-color: #d97706;
+}
+
+.theme-dark {
+  --glass-bg: rgba(26, 32, 44, 0.8);
+  --glass-border: rgba(255,255,255,0.1);
+  --glass-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  --backdrop-blur: blur(16px);
+  --main-bg: #1a202c;
+  --main-text: #f7fafc;
+  --primary-color: #3b82f6;
+  --secondary-color: #ef4444;
+  --accent-color: #10b981;
+  --warning-color: #f59e0b;
+}
+
+.theme-light {
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --backdrop-blur: blur(16px);
+  --main-bg: #f8fafc;
+  --main-text: #1a202c;
+  --primary-color: #2563eb;
+  --secondary-color: #dc2626;
+  --accent-color: #059669;
+  --warning-color: #d97706;
+}
+
+/* Reset e configurações base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  background: var(--main-bg);
+  color: var(--main-text);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Efeitos de vidro (glassmorphism) - Design Metro */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
+  /* Design Metro: sem bordas arredondadas */
+  border-radius: 0;
+}
+
+.glass-dark {
+  background: var(--glass-bg);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s ease;
+  /* Design Metro: sem bordas arredondadas */
+  border-radius: 0;
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0,0,0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* Classes de animação */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Transições suaves */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-transform {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Leaflet customizado - Design Metro */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* Scrollbar customizada - Design Metro */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Design Metro: Botões e inputs sem bordas arredondadas */
+button, input, select, textarea {
+  border-radius: 0 !important;
+}
+
+/* Design Metro: Cards e containers */
+.card, .container, .sidebar, .header {
+  border-radius: 0 !important;
+}
+
+/* Design Metro: Hover effects mais pronunciados */
+.glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.glass-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Esconder scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Modal z-index fix */
+.comparison-modal {
+  z-index: 9999 !important;
+} 

@@ -1,41 +1,45 @@
 {
-  "name": "vibehack",
+  "name": "estima-educacao",
   "version": "1.0.0",
-  "description": "Sistema de Escolha de Instituições de Ensino Superior",
+  "description": "Aplicação para encontrar instituições de ensino próximas com informações detalhadas",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:front\" \"npm run dev:back\"",
-    "dev:front": "cd front && npm run dev",
-    "dev:back": "cd back && npm start",
-    "install:all": "npm install && cd front && npm install && cd ../back && npm install",
-    "build": "cd front && npm run build",
-    "preview": "cd front && npm run preview",
-    "lint": "cd front && npm run lint",
-    "start": "npm run dev"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx,ts,tsx"
+  },
+  "dependencies": {
+    "@types/leaflet": "^1.9.20",
+    "autoprefixer": "^10.4.16",
+    "axios": "^1.6.0",
+    "cheerio": "^1.1.2",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.294.0",
+    "postcss": "^8.4.32",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.1",
+    "tailwindcss": "^3.3.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.1.1",
+    "eslint": "^8.53.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.4",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
   },
   "keywords": [
-    "education",
-    "universities",
-    "comparison",
-    "react",
-    "typescript",
-    "nodejs"
+    "educação",
+    "periferia",
+    "mapa",
+    "instituições"
   ],
-  "author": "VibeHack Team",
+  "author": "Estima",
   "license": "MIT",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/vibehack.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-username/vibehack/issues"
-  },
-  "homepage": "https://github.com/your-username/vibehack#readme"
-} 
+  "type": "module"
+}
