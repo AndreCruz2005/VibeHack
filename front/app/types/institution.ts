@@ -15,7 +15,6 @@ export interface Institution {
       lng: number;
     };
   };
-  transportOptions: string[];
   courseTypes: string[];
   availableCourses: Course[];
   images: string[];
@@ -65,7 +64,7 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
-  course?: string;
+  course: string; // Curso específico do usuário
   helpful: number;
 }
 
@@ -82,6 +81,6 @@ export interface FilterCriteria {
     state: string;
     city: string;
   };
-  transportOptions: string[];
   courseType: string;
+  courseName: string; // Novo filtro por nome do curso
 } 

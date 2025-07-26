@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { Header } from '~/components/layout/Header';
 import { SearchFilters, type FilterCriteria } from '~/components/search/SearchFilters';
 import { InstitutionList } from '~/components/institution/InstitutionList';
@@ -11,6 +12,7 @@ export function meta() {
 }
 
 export default function SearchPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<FilterCriteria>({
     searchTerm: '',
     budget: { min: 0, max: 10000 },
@@ -18,8 +20,8 @@ export default function SearchPage() {
     studentRating: 0,
     infrastructure: [],
     location: { state: '', city: '' },
-    transportOptions: [],
-    courseType: ''
+    courseType: '',
+    courseName: ''
   });
 
   const handleFiltersChange = (newFilters: FilterCriteria) => {
@@ -27,8 +29,7 @@ export default function SearchPage() {
   };
 
   const handleViewDetails = (id: string) => {
-    // TODO: Navegar para página de detalhes
-    console.log('Ver detalhes da instituição:', id);
+    navigate(`/institution/${id}`);
   };
 
   return (

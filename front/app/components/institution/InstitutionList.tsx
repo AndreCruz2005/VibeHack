@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import type { Institution } from '~/types/institution';
 import { InstitutionCard } from './InstitutionCard';
 import { institutionService } from '~/services/institutionService';
+import { useFavorites } from '~/contexts/FavoritesContext';
+import { useComparison } from '~/contexts/ComparisonContext';
 
 interface InstitutionListProps {
   filters: any;
@@ -11,8 +14,8 @@ interface InstitutionListProps {
 export function InstitutionList({ filters, onViewDetails }: InstitutionListProps) {
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [comparison, setComparison] = useState<string[]>([]);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { comparison, addToComparison, removeFromComparison, clearComparison, isInComparison } = useComparison();
 
   useEffect(() => {
     loadInstitutions();
@@ -21,9 +24,8 @@ export function InstitutionList({ filters, onViewDetails }: InstitutionListProps
   const loadInstitutions = async () => {
     setLoading(true);
     try {
-      // TODO: Implementar chamada real para o backend
-      // const data = await institutionService.searchInstitutions(filters);
-      const data = await institutionService.getMockInstitutions();
+      // Usar o método searchInstitutions que aplica os filtros
+      const data = await institutionService.searchInstitutions(filters);
       setInstitutions(data);
     } catch (error) {
       console.error('Erro ao carregar instituições:', error);
@@ -32,25 +34,21 @@ export function InstitutionList({ filters, onViewDetails }: InstitutionListProps
     }
   };
 
-  const handleAddToFavorites = (id: string) => {
-    setFavorites(prev => 
-      prev.includes(id) 
-        ? prev.filter(favId => favId !== id)
-        : [...prev, id]
-    );
+  const handleAddToFavorites = async (id: string) => {
+    await toggleFavorite(id);
   };
 
   const handleCompare = (id: string) => {
-    setComparison(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(compId => compId !== id);
-      }
-      if (prev.length >= 3) {
-        // Limita a 3 instituições para comparação
-        return [...prev.slice(1), id];
-      }
-      return [...prev, id];
-    });
+    if (comparison.includes(id)) {
+      removeFromComparison(id);
+    } else {
+      addToComparison(id);
+    }
+  };
+
+  const handleCompareNow = () => {
+    // Salvar as instituições selecionadas no localStorage para a página de comparação
+    localStorage.setItem('comparisonInstitutions', JSON.stringify(comparison));
   };
 
   if (loading) {
@@ -82,6 +80,11 @@ export function InstitutionList({ filters, onViewDetails }: InstitutionListProps
         <p className="text-blue-800">
           Encontradas <strong>{institutions.length}</strong> instituições
           {filters.searchTerm && ` para "${filters.searchTerm}"`}
+          {institutions.length === 0 && (
+            <span className="block mt-2 text-sm text-blue-600">
+              Tente ajustar os filtros para encontrar mais opções.
+            </span>
+          )}
         </p>
       </div>
 
@@ -94,24 +97,33 @@ export function InstitutionList({ filters, onViewDetails }: InstitutionListProps
             onViewDetails={onViewDetails}
             onAddToFavorites={handleAddToFavorites}
             onCompare={handleCompare}
-            isFavorite={favorites.includes(institution.id)}
-            isInComparison={comparison.includes(institution.id)}
+            isFavorite={isFavorite(institution.id)}
+            isInComparison={isInComparison(institution.id)}
           />
         ))}
       </div>
 
       {/* Indicador de comparação */}
       {comparison.length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-blue-600 text-white p-4 rounded-lg shadow-lg z-50">
           <p className="font-semibold mb-2">
-            Comparação ({comparison.length}/3)
+            Comparação ({comparison.length}/4)
           </p>
-          <button
-            onClick={() => {/* TODO: Navegar para página de comparação */}}
-            className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors"
-          >
-            Comparar Agora
-          </button>
+          <div className="flex gap-2">
+            <Link
+              to="/comparison"
+              onClick={handleCompareNow}
+              className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium"
+            >
+              Comparar Agora
+            </Link>
+            <button
+              onClick={clearComparison}
+              className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600 transition-colors text-sm"
+            >
+              Limpar
+            </button>
+          </div>
         </div>
       )}
     </div>

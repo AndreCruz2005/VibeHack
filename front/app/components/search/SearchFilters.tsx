@@ -17,8 +17,8 @@ export interface FilterCriteria {
     state: string;
     city: string;
   };
-  transportOptions: string[];
   courseType: string;
+  courseName: string;
 }
 
 export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
@@ -29,14 +29,44 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
     studentRating: 0,
     infrastructure: [],
     location: { state: '', city: '' },
-    transportOptions: [],
-    courseType: ''
+    courseType: '',
+    courseName: ''
   });
 
   const handleFilterChange = (key: keyof FilterCriteria, value: any) => {
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);
+  };
+
+  // Função para verificar se há filtros ativos
+  const hasActiveFilters = () => {
+    return (
+      filters.searchTerm !== '' ||
+      filters.budget.min !== 0 ||
+      filters.budget.max !== 10000 ||
+      filters.mecRating > 0 ||
+      filters.studentRating > 0 ||
+      filters.infrastructure.length > 0 ||
+      filters.location.state !== '' ||
+      filters.location.city !== '' ||
+      filters.courseType !== '' ||
+      filters.courseName !== ''
+    );
+  };
+
+  // Função para contar filtros ativos
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.searchTerm !== '') count++;
+    if (filters.budget.min !== 0 || filters.budget.max !== 10000) count++;
+    if (filters.mecRating > 0) count++;
+    if (filters.studentRating > 0) count++;
+    if (filters.infrastructure.length > 0) count++;
+    if (filters.location.state !== '' || filters.location.city !== '') count++;
+    if (filters.courseType !== '') count++;
+    if (filters.courseName !== '') count++;
+    return count;
   };
 
   const infrastructureOptions = [
@@ -50,13 +80,7 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
     'Clínica'
   ];
 
-  const transportOptions = [
-    'Ônibus',
-    'Metrô',
-    'Trem',
-    'Bicicleta',
-    'Carro próprio'
-  ];
+
 
   const courseTypes = [
     'Bacharelado',
@@ -67,7 +91,14 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Filtros de Busca</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">Filtros de Busca</h2>
+        {hasActiveFilters() && (
+          <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+            {getActiveFiltersCount()} filtro{getActiveFiltersCount() !== 1 ? 's' : ''} ativo{getActiveFiltersCount() !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
       
       {/* Busca por nome */}
       <div className="mb-6">
@@ -161,6 +192,20 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
         </select>
       </div>
 
+      {/* Nome do curso */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nome do curso
+        </label>
+        <input
+          type="text"
+          placeholder="Digite o nome do curso..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={filters.courseName}
+          onChange={(e) => handleFilterChange('courseName', e.target.value)}
+        />
+      </div>
+
       {/* Infraestrutura */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -191,69 +236,58 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Localização
         </label>
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Estado"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={filters.location.state}
-            onChange={(e) => handleFilterChange('location', { ...filters.location, state: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Cidade"
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={filters.location.city}
-            onChange={(e) => handleFilterChange('location', { ...filters.location, city: e.target.value })}
-          />
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Estado
+            </label>
+            <input
+              type="text"
+              placeholder="Digite o estado..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={filters.location.state}
+              onChange={(e) => handleFilterChange('location', { ...filters.location, state: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">
+              Cidade
+            </label>
+            <input
+              type="text"
+              placeholder="Digite a cidade..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={filters.location.city}
+              onChange={(e) => handleFilterChange('location', { ...filters.location, city: e.target.value })}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Opções de transporte */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Opções de transporte
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {transportOptions.map(option => (
-            <label key={option} className="flex items-center">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={filters.transportOptions.includes(option)}
-                onChange={(e) => {
-                  const newTransport = e.target.checked
-                    ? [...filters.transportOptions, option]
-                    : filters.transportOptions.filter(item => item !== option);
-                  handleFilterChange('transportOptions', newTransport);
-                }}
-              />
-              <span className="text-sm">{option}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+
 
       {/* Botão limpar filtros */}
-      <button
-        onClick={() => {
-          const resetFilters: FilterCriteria = {
+      {hasActiveFilters() && (
+        <button
+          onClick={() => {
+                      const resetFilters: FilterCriteria = {
             searchTerm: '',
             budget: { min: 0, max: 10000 },
             mecRating: 0,
             studentRating: 0,
             infrastructure: [],
             location: { state: '', city: '' },
-            transportOptions: [],
-            courseType: ''
+            courseType: '',
+            courseName: ''
           };
-          setFilters(resetFilters);
-          onFiltersChange(resetFilters);
-        }}
-        className="w-full bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors"
-      >
-        Limpar Filtros
-      </button>
+            setFilters(resetFilters);
+            onFiltersChange(resetFilters);
+          }}
+          className="w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+        >
+          Limpar Filtros ({getActiveFiltersCount()})
+        </button>
+      )}
     </div>
   );
 } 

@@ -38,7 +38,7 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* User menu */}
+                    {/* User menu */}
           <div className="flex items-center space-x-4">
             <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
               Entrar

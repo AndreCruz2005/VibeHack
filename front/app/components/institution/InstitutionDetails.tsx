@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import type { Institution } from '~/types/institution';
 import { institutionService } from '~/services/institutionService';
+import { useFavorites } from '~/contexts/FavoritesContext';
 
 export function InstitutionDetails() {
   const { id } = useParams();
   const [institution, setInstitution] = useState<Institution | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     if (id) {
@@ -33,6 +35,11 @@ export function InstitutionDetails() {
         ★
       </span>
     ));
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!id) return;
+    await toggleFavorite(id);
   };
 
   if (loading) {
@@ -94,10 +101,24 @@ export function InstitutionDetails() {
             </div>
             
             <div className="flex gap-3">
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
-                Adicionar aos Favoritos
+              <button 
+                onClick={handleToggleFavorite}
+                className={`px-6 py-2 rounded-md transition-colors min-w-[180px] ${
+                  isFavorite(id!) 
+                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {isFavorite(id!) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
               </button>
-              <button className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors">
+              <button 
+                onClick={() => {
+                  // Salvar a instituição atual no localStorage para comparação
+                  localStorage.setItem('comparisonInstitutions', JSON.stringify([id]));
+                  window.location.href = '/comparison';
+                }}
+                className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors min-w-[180px]"
+              >
                 Comparar
               </button>
             </div>
@@ -242,7 +263,12 @@ export function InstitutionDetails() {
                         {new Date(review.date).toLocaleDateString('pt-BR')}
                       </span>
                     </div>
-                    <p className="text-gray-700 mb-2">{review.comment}</p>
+                    <div className="mb-2">
+                      <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-2">
+                        {review.course}
+                      </span>
+                      <p className="text-gray-700">{review.comment}</p>
+                    </div>
                     <div className="flex items-center gap-2 text-sm text-gray-500">
                       <span>👍 {review.helpful} pessoas acharam útil</span>
                     </div>

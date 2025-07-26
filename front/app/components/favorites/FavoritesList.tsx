@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import type { Institution } from '~/types/institution';
 import { InstitutionCard } from '../institution/InstitutionCard';
 import { institutionService } from '~/services/institutionService';
+import { useFavorites } from '~/contexts/FavoritesContext';
 
 export function FavoritesList() {
+  const navigate = useNavigate();
   const [favorites, setFavorites] = useState<Institution[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toggleFavorite, isFavorite, favorites: favoriteIds } = useFavorites();
 
   useEffect(() => {
     loadFavorites();
-  }, []);
+  }, [favoriteIds]); // Recarregar quando os favoritos mudarem
 
   const loadFavorites = async () => {
     setLoading(true);
@@ -23,13 +27,12 @@ export function FavoritesList() {
     }
   };
 
-  const handleRemoveFavorite = (id: string) => {
-    setFavorites(prev => prev.filter(fav => fav.id !== id));
+  const handleRemoveFavorite = async (id: string) => {
+    await toggleFavorite(id);
   };
 
   const handleViewDetails = (id: string) => {
-    // TODO: Navegar para página de detalhes
-    console.log('Ver detalhes:', id);
+    navigate(`/institution/${id}`);
   };
 
   const handleCompare = (id: string) => {
@@ -77,7 +80,7 @@ export function FavoritesList() {
             onViewDetails={handleViewDetails}
             onAddToFavorites={handleRemoveFavorite}
             onCompare={handleCompare}
-            isFavorite={true}
+            isFavorite={isFavorite(institution.id)}
             isInComparison={false}
           />
         ))}

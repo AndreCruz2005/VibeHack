@@ -1,11 +1,11 @@
 # VibeHack - Sistema de Escolha de Instituições de Ensino Superior
 
-Um sistema web moderno que auxilia estudantes na escolha de instituições de ensino superior, considerando fatores como orçamento, avaliação do MEC, avaliação de estudantes, infraestrutura, localização e transporte.
+Um sistema web moderno que auxilia estudantes na escolha de instituições de ensino superior, considerando fatores como orçamento, avaliação do MEC, avaliação de estudantes, infraestrutura e localização.
 
 ## 🚀 Funcionalidades
 
 ### Principais
-- **Busca Avançada**: Filtros por preço, avaliações, localização, infraestrutura e transporte
+- **Busca Avançada**: Filtros por preço, avaliações, localização e infraestrutura
 - **Comparação**: Compare até 3 instituições lado a lado
 - **Favoritos**: Salve suas instituições preferidas
 - **Detalhes Completos**: Informações detalhadas sobre cada instituição
@@ -17,7 +17,7 @@ Um sistema web moderno que auxilia estudantes na escolha de instituições de en
 - **Avaliação Estudantes**: Nota mínima de 1 a 5
 - **Infraestrutura**: Biblioteca, laboratórios, Wi-Fi, estacionamento, etc.
 - **Localização**: Estado e cidade
-- **Transporte**: Ônibus, metrô, trem, bicicleta, carro próprio
+
 - **Tipo de Curso**: Bacharelado, Licenciatura, Tecnólogo, Pós-graduação
 
 ## 🛠️ Tecnologias

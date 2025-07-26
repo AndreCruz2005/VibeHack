@@ -88,7 +88,7 @@ export function InstitutionCard({
         <div className="mb-4">
           <p className="text-sm text-gray-600">Mensalidade</p>
           <p className="text-2xl font-bold text-green-600">
-            R$ {institution.monthlyFee.toLocaleString('pt-BR')}
+            {institution.monthlyFee === 0 ? 'Gratuito' : `R$ ${institution.monthlyFee.toLocaleString('pt-BR')}`}
           </p>
         </div>
 
@@ -112,25 +112,7 @@ export function InstitutionCard({
           </div>
         </div>
 
-        {/* Transporte */}
-        <div className="mb-6">
-          <p className="text-sm text-gray-600 mb-2">Transporte</p>
-          <div className="flex flex-wrap gap-1">
-            {institution.transportOptions.slice(0, 3).map((option: string) => (
-              <span
-                key={option}
-                className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
-              >
-                {option}
-              </span>
-            ))}
-            {institution.transportOptions.length > 3 && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                +{institution.transportOptions.length - 3}
-              </span>
-            )}
-          </div>
-        </div>
+
 
         {/* Botão ver detalhes */}
         <button
