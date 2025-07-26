@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estima – Guia Inteligente de Universidades Privadas</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles and Dark Mode Logic -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #718096;
+        }
+        /* Leaflet map height */
+        #interactiveMap {
+            height: 450px; /* Increased height for better visibility */
+            width: 100%;
+        }
+        /* Floating button style */
+        .floating-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+        }
+        /* Modal styles */
+        .modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+        }
+        .modal.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        /* Page sections */
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        /* Simple bounce animation for floating button */
+        @keyframes bounce-slow {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-40">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
+                Estima<span class="text-yellow-500">.</span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#home" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="home">Home</a>
+                <a href="#universities" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="universities">Universidades</a>
+                <a href="#courses" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="courses">Cursos</a>
+                <a href="#scholarships" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="scholarships">Bolsas & Financiamentos</a>
+                <a href="#blog" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="blog">Blog</a>
+                <a href="#contact" class="nav-link text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-semibold transition-colors duration-200" data-section="contact">Contato</a>
+                <button id="darkModeToggle" aria-label="Alternar modo escuro" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <!-- Sun Icon -->
+                    <svg id="sunIcon" class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <!-- Moon Icon -->
+                    <svg id="moonIcon" class="h-6 w-6 text-blue-500 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6">
+        <!-- Home Section -->
+        <section id="home" class="page-section active text-center my-10 md:my-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 p-8 rounded-xl shadow-lg">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-700 dark:text-blue-400 leading-tight mb-4">
+                Bem-vindo(a) à <span class="text-yellow-600 dark:text-yellow-400">Estima</span>: Seu Guia Completo para o Ensino Superior!
+            </h1>
+            <p class="mt-4 text-lg max-w-3xl mx-auto text-gray-700 dark:text-gray-300">
+                Encontre a universidade ideal, explore cursos, descubra bolsas e financiamentos, e receba dicas valiosas para o seu futuro acadêmico.
+            </p>
+            <div class="mt-10 flex flex-wrap justify-center gap-4">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-md transform hover:scale-105" data-section-btn="universities">
+                    <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a2 2 0 012-2h2a2 2 0 012 2v5m-4 0h4"></path></svg>
+                    Buscar Universidades
+                </button>
+                <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-md transform hover:scale-105" data-section-btn="courses">
+                    <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.747 0-3.332.477-4.5 1.253"></path></svg>
+                    Explorar Cursos
+                </button>
+                <button id="openQuizBtnHome" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-md transform hover:scale-105">
+                    <svg class="inline-block h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0l.707.707M3 12h1m16 0h1M4.636 4.636l.707.707M19.364 19.364l.707.707M12 6.586l2.828 2.828A4 4 0 0116 12a4 4 0 11-8 0 4 4 0 011.172-2.586L12 6.586z" /></svg>
+                    Fazer Quiz Vocacional
+                </button>
+            </div>
+        </section>
+
+        <!-- Universities Section (Existing content, now a page-section) -->
+        <section id="universities" class="page-section">
+            <h2 class="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-8">Encontre sua Universidade Ideal</h2>
+            <div id="filters-universities" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <aside class="lg:col-span-4 xl:col-span-3">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl sticky top-24 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-2xl font-bold mb-4 border-b pb-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100">Filtros Inteligentes</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label for="locationFilter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Cidade/Bairro</label>
+                                <input type="text" id="locationFilter" placeholder="Ex: Recife, Boa Viagem..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2">
+                            </div>
+                            <div>
+                                <label for="courseFilter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Curso Desejado</label>
+                                <input type="text" id="courseFilter" placeholder="Ex: Direito, Enfermagem..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2">
+                            </div>
+                            <div>
+                                <label for="costFilter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Custo Máximo Mensal: <span id="costValue" class="font-bold text-blue-600 dark:text-blue-400">R$ 5000</span></label>
+                                <input type="range" id="costFilter" min="500" max="5000" step="100" value="5000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-blue-500">
+                            </div>
+                            <div>
+                                <label for="scholarshipFilter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Tipo de Bolsa</label>
+                                <select id="scholarshipFilter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2">
+                                    <option value="todas">Todas</option>
+                                    <option value="prouni">Prouni</option>
+                                    <option value="bolsasocial">Bolsa Social</option>
+                                    <option value="financiamento">Financiamento</option>
+                                    <option value="convenio">Convênio</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="distanceFilter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Distância de Você: <span id="distanceValue" class="font-bold text-blue-600 dark:text-blue-400">100 km</span></label>
+                                <input type="range" id="distanceFilter" min="1" max="100" step="5" value="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-blue-500">
+                            </div>
+                            <div>
+                                <label for="sortBy" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Ordenar por</label>
+                                <select id="sortBy" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2">
+                                    <option value="default">Relevância</option>
+                                    <option value="cost-asc">Custo (menor para maior)</option>
+                                    <option value="cost-desc">Custo (maior para menor)</option>
+                                    <option value="mec-desc">Nota MEC (maior para menor)</option>
+                                    <option value="distance-asc">Distância (menor para maior)</option>
+                                </select>
+                            </div>
+                            <button id="clearFiltersBtn" class="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+
+                <div class="lg:col-span-8 xl:col-span-9 space-y-8">
+                    <section class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">Mapa Interativo</h2>
+                        <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                            Veja as universidades no mapa. O ponto azul representa sua localização (simulada no bairro do Ibura, Recife para demonstração).
+                        </p>
+                        <div id="interactiveMap" class="rounded-lg z-0"></div>
+                    </section>
+
+                    <section>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Resultados (<span id="resultsCount">0</span> encontrados)</h2>
+                        <div id="universityResults" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                            <!-- University cards will be injected here by JavaScript -->
+                        </div>
+                        <div id="noResults" class="hidden text-center py-10 px-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700">
+                            <p class="font-semibold text-gray-700 dark:text-gray-300">Nenhuma universidade encontrada com os filtros selecionados.</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Tente ampliar sua busca ou ajustar os filtros.</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section (New) -->
+        <section id="courses" class="page-section">
+            <h2 class="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-8">Explore Nossos Cursos</h2>
+            <div class="max-w-4xl mx-auto mb-8">
+                <input type="text" id="courseSearch" placeholder="Buscar curso por nome ou área..." class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-3">
+            </div>
+            <div id="courseResults" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Course cards will be injected here -->
+            </div>
+            <div id="noCourseResults" class="hidden text-center py-10 px-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700 mt-8">
+                <p class="font-semibold text-gray-700 dark:text-gray-300">Nenhum curso encontrado com os critérios de busca.</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Tente uma busca diferente.</p>
+            </div>
+        </section>
+
+        <!-- Scholarships & Financing Section (New) -->
+        <section id="scholarships" class="page-section">
+            <h2 class="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-8">Bolsas e Financiamentos: Seu Caminho para o Ensino Superior</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-green-600 dark:text-green-400 mb-4 flex items-center"><svg class="h-7 w-7 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Prouni (Programa Universidade para Todos)</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Oferece bolsas de estudo integrais (100%) e parciais (50%) em cursos de graduação de instituições privadas de ensino superior. É destinado a estudantes sem diploma de nível superior, que tenham participado do ENEM e com renda familiar bruta mensal por pessoa de até 3 salários mínimos.</p>
+                    <a href="https://acessounico.mec.gov.br/prouni" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline font-medium">Saiba mais sobre o Prouni</a>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center"><svg class="h-7 w-7 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a2 2 0 012 2v8a2 2 0 01-2 2H6a3 3 0 01-3-3V6zm4 0a1 1 0 011-1h2a1 1 0 110 2H8a1 1 0 01-1-1zm1 3a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg> FIES (Fundo de Financiamento Estudantil)</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">É um programa do Ministério da Educação que tem como objetivo conceder financiamento a estudantes de cursos superiores não gratuitos. O estudante começa a pagar o empréstimo após a formatura, com juros baixos ou zero, dependendo da renda familiar.</p>
+                    <a href="https://acessounico.mec.gov.br/fies" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline font-medium">Saiba mais sobre o FIES</a>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-4 flex items-center"><svg class="h-7 w-7 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.707 9.293a1 1 0 00-1.414 1.414L8.586 12l-1.293 1.293a1 1 0 101.414 1.414L10 13.414l1.293 1.293a1 1 0 001.414-1.414L11.414 12l1.293-1.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293z" clip-rule="evenodd"></path></svg> Bolsas Sociais e Convênios</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Muitas universidades privadas oferecem programas de bolsas próprias, baseadas em critérios socioeconômicos ou desempenho acadêmico. Além disso, convênios com empresas, associações e escolas podem garantir descontos nas mensalidades. Verifique diretamente com a instituição de interesse.</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Consulte o site da universidade desejada para mais informações.</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center"><svg class="h-7 w-7 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Bolsas por Desempenho e Transferência</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">Algumas instituições oferecem bolsas para estudantes com bom desempenho no vestibular ou que transferem de outras faculdades. Essas bolsas podem ser parciais e variam de acordo com a política de cada universidade.</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Sempre leia o edital e os requisitos de cada programa.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Section (New) -->
+        <section id="blog" class="page-section">
+            <h2 class="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-8">Blog Estima: Dicas e Artigos para o seu Futuro</h2>
+            <div id="blogPosts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Blog posts will be injected here -->
+            </div>
+        </section>
+
+        <!-- Contact Section (New) -->
+        <section id="contact" class="page-section">
+            <h2 class="text-3xl font-bold text-center text-blue-600 dark:text-blue-400 mb-8">Fale Conosco</h2>
+            <div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+                <form id="contactForm" class="space-y-6">
+                    <div>
+                        <label for="contactName" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Seu Nome</label>
+                        <input type="text" id="contactName" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2" required>
+                    </div>
+                    <div>
+                        <label for="contactEmail" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Seu E-mail</label>
+                        <input type="email" id="contactEmail" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2" required>
+                    </div>
+                    <div>
+                        <label for="contactSubject" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Assunto</label>
+                        <input type="text" id="contactSubject" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2">
+                    </div>
+                    <div>
+                        <label for="contactMessage" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Sua Mensagem</label>
+                        <textarea id="contactMessage" rows="5" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 p-2" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                        Enviar Mensagem
+                    </button>
+                </form>
+                <div id="contactMessageStatus" class="mt-4 text-center text-sm font-semibold hidden"></div>
+            </div>
+        </section>
+
+        <!-- Fraud Tips Section (Existing, now integrated as a potential internal link) -->
+        <section id="fraud-tips" class="page-section mt-16 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700">
+            <h2 class="text-3xl font-bold text-center text-red-600 dark:text-red-400 mb-8">Dicas Antifraudes: Fique Alerta! <span class="text-xl">🚨</span></h2>
+            <div class="grid md:grid-cols-2 gap-8 text-gray-700 dark:text-gray-300">
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg mb-2 flex items-center text-red-700 dark:text-red-300"><svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Desconfie de promessas fáceis demais</h3>
+                    <p class="text-sm">Bolsas de 100% garantidas sem processo seletivo ou com taxas "administrativas" pagas antecipadamente via Pix para pessoas físicas são um grande sinal de alerta. Nenhuma instituição séria pedirá dinheiro dessa forma.</p>
+                </div>
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg mb-2 flex items-center text-red-700 dark:text-red-300"><svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.3 2.671-1.3 3.436 0L14.464 7.6c.765 1.3-.174 2.9-1.714 2.9H7.257c-1.54 0-2.479-1.6-1.714-2.9L8.257 3.099zM10 14a1 1 0 100-2 1 1 0 000 2zm0 2a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg> Verifique a instituição</h3>
+                    <p class="text-sm">Sempre confirme se a universidade é credenciada pelo MEC. Consulte o site oficial do <a href="https://emec.mec.gov.br/" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline font-medium">e-MEC</a> para verificar a situação da instituição e do curso. Não confie apenas em informações de terceiros.</p>
+                </div>
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg mb-2 flex items-center text-red-700 dark:text-red-300"><svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3.28 3.28a2 2 0 01-2.828 0l-3.28-3.28a2 2 0 112.828-2.828l.707.707.707-.707zm-4.242 7.07l-.707.707a2 2 0 11-2.828-2.828l3.28-3.28a2 2 0 012.828 0l.707.707.707-.707a2 2 0 112.828 2.828l-3.28 3.28a2 2 0 01-2.828 0z" clip-rule="evenodd"></path></svg> Cuidado com links e contatos</h3>
+                    <p class="text-sm">Não clique em links suspeitos recebidos por WhatsApp, SMS ou redes sociais. Faça sua inscrição sempre pelo site oficial da universidade ou de programas governamentais conhecidos como Prouni e FIES.</p>
+                </div>
+                <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg shadow-inner">
+                    <h3 class="font-bold text-lg mb-2 flex items-center text-red-700 dark:text-red-300"><svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2h2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2h2zm2-2v2h6V7a3 3 0 00-6 0z" clip-rule="evenodd"></path></svg> Proteja seus dados</h3>
+                    <p class="text-sm">Nunca compartilhe cópias de documentos pessoais ou dados bancários com "consultores" ou em sites não oficiais. As instituições sérias têm portais seguros para isso. Desconfie de qualquer pedido de dados excessivo.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Vocational Quiz Floating Button -->
+    <button id="openQuizBtnFloating" class="floating-btn bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold p-4 rounded-full shadow-xl transition-transform transform hover:scale-110 flex items-center space-x-2 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-75 animate-bounce-slow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0l.707.707M3 12h1m16 0h1M4.636 4.636l.707.707M19.364 19.364l.707.707M12 6.586l2.828 2.828A4 4 0 0116 12a4 4 0 11-8 0 4 4 0 011.172-2.586L12 6.586z" /></svg>
+        <span class="hidden sm:block">Quiz Vocacional</span>
+    </button>
+
+    <!-- Modals Container -->
+    <div id="modalContainer">
+        <!-- University Details Modal (template) -->
+        <div id="detailsModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" aria-modal="true" role="dialog">
+            <div id="detailsModalContent" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+
+        <!-- Vocational Quiz Modal (template) -->
+        <div id="quizModal" class="modal fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4" aria-modal="true" role="dialog">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 md:p-8 max-w-lg w-full transform scale-95 transition-transform duration-300">
+                <div id="quizStepContainer">
+                    <!-- Quiz steps will be injected here -->
+                </div>
+                <div id="quizResultContainer" class="hidden text-center">
+                    <!-- Quiz result will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 mt-16 border-t border-gray-200 dark:border-gray-700 shadow-inner">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-600 dark:text-gray-400">
+            <p class="font-bold text-xl text-blue-600 dark:text-blue-400">Estima</p>
+            <p class="mt-2 text-sm max-w-2xl mx-auto">Um projeto de inclusão digital para ajudar jovens a alcançarem o ensino superior, facilitando a busca por universidades e cursos que se encaixem em suas necessidades e sonhos.</p>
+            <div class="mt-4">
+                <a href="mailto:contato@estima.com.br" class="hover:text-blue-500 transition-colors duration-200 font-medium">Fale Conosco / Sugestões</a>
+            </div>
+            <p class="mt-4 text-xs">&copy; 2025 Estima. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS for Interactive Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Main Application Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DATABASE (Mocked Data) ---
+            const universities = [
+                // Recife Universities
+                { id: 1, name: "UniFBV Wyden", logo: "https://placehold.co/100x100/2a60b9/ffffff?text=UniFBV", location: { cidade: "Recife", bairro: "Imbiribeira", zona: "Sul", coords: { lat: -8.1033, lng: -34.9083 } }, courses: ["Direito", "Engenharia Civil", "Psicologia", "Odontologia", "Sistemas de Informação", "Arquitetura e Urbanismo"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 50 }, { type: "financiamento", discount: 0 }], monthly_cost: 1250.00, pros: ["Forte em tecnologia e cursos de engenharia", "Boa infraestrutura com laboratórios modernos", "Fácil acesso pela Av. Mascarenhas de Morais", "Corpo docente qualificado"], cons: ["Mensalidades elevadas em alguns cursos de saúde", "Poucas opções de alimentação no entorno do campus", "Estacionamento limitado"], mec_score: 4 },
+                { id: 2, name: "UNINASSAU", logo: "https://placehold.co/100x100/ff6600/ffffff?text=UNINASSAU", location: { cidade: "Recife", bairro: "Graças", zona: "Norte", coords: { lat: -8.0442, lng: -34.8981 } }, courses: ["Direito", "Enfermagem", "Jornalismo", "Publicidade e Propaganda", "Fisioterapia", "Administração", "Medicina Veterinária"], scholarships: [{ type: "prouni", discount: 100 }, { type: "educamaisbrasil", discount: 50 }, { type: "financiamento", discount: 0 }, {type: "convenio", discount: 30}], monthly_cost: 980.00, pros: ["Grande variedade de cursos em todas as áreas", "Localização central e vários campi espalhados pela cidade", "Preços competitivos e muitas opções de bolsa", "Forte inserção no mercado de trabalho local"], cons: ["Estrutura pode variar muito entre os blocos", "Campus principal pode ser bem cheio em horários de pico", "Atendimento administrativo pode ser demorado"], mec_score: 4 },
+                { id: 3, name: "Universidade Católica de Pernambuco (UNICAP)", logo: "https://placehold.co/100x100/a62128/ffffff?text=UNICAP", location: { cidade: "Recife", bairro: "Boa Vista", zona: "Central", coords: { lat: -8.0581, lng: -34.8921 } }, courses: ["Direito", "Arquitetura e Urbanismo", "Filosofia", "Ciência da Computação", "Engenharia Civil", "Jornalismo", "Psicologia", "Serviço Social"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 50 }], monthly_cost: 1600.00, pros: ["Tradição e excelência acadêmica reconhecida nacionalmente", "Biblioteca de referência e campus bem estruturado e histórico", "Forte em cursos de humanas e direito", "Incentivo à pesquisa e extensão"], cons: ["Custo mais elevado da região", "Acesso pode ser congestionado em horários de pico", "Poucas opções de cursos na área de saúde"], mec_score: 5 },
+                { id: 4, name: "Estácio Recife", logo: "https://placehold.co/100x100/009cde/ffffff?text=Estácio", location: { cidade: "Recife", bairro: "Ilha do Leite", zona: "Central", coords: { lat: -8.0614, lng: -34.8967 } }, courses: ["Administração", "Ciências Contábeis", "Gestão de RH", "Educação Física", "Sistemas de Informação", "Marketing"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsadetransferencia", discount: 60 }, { type: "financiamento", discount: 0 }], monthly_cost: 850.00, pros: ["Flexibilidade de horários (EAD e presencial)", "Mensalidades entre as mais acessíveis de Recife", "Foco em cursos de gestão e negócios", "Plataforma online robusta"], cons: ["Infraestrutura mais simples comparada a outras grandes universidades", "Alguns cursos possuem poucas turmas presenciais", "Reconhecimento de mercado pode ser menor em algumas áreas"], mec_score: 3 },
+                { id: 5, name: "Faculdade Pernambucana (FAPE)", logo: "https://placehold.co/100x100/4CAF50/ffffff?text=FAPE", location: { cidade: "Recife", bairro: "Boa Viagem", zona: "Sul", coords: { lat: -8.1300, lng: -34.9000 } }, courses: ["Administração", "Contabilidade", "Marketing", "Recursos Humanos"], scholarships: [{ type: "bolsasocial", discount: 40 }], monthly_cost: 700.00, pros: ["Cursos focados no mercado de trabalho", "Mensalidades acessíveis", "Localização privilegiada em Boa Viagem"], cons: ["Pequeno porte", "Menos opções de cursos", "Infraestrutura básica"], mec_score: 3 },
+
+                // São Paulo Universities
+                { id: 6, name: "Universidade Anhembi Morumbi", logo: "https://placehold.co/100x100/7B1FA2/ffffff?text=Anhembi", location: { cidade: "São Paulo", bairro: "Mooca", zona: "Leste", coords: { lat: -23.5593, lng: -46.5985 } }, courses: ["Moda", "Design Gráfico", "Gastronomia", "Medicina Veterinária", "Cinema"], scholarships: [{ type: "prouni", discount: 100 }, { type: "financiamento", discount: 0 }], monthly_cost: 1800.00, pros: ["Reconhecida por cursos criativos e inovadores", "Infraestrutura moderna com estúdios e laboratórios", "Parcerias internacionais"], cons: ["Mensalidades mais altas em cursos específicos", "Campus principal em área de tráfego intenso"], mec_score: 4 },
+                { id: 7, name: "Universidade Paulista (UNIP)", logo: "https://placehold.co/100x100/007BFF/ffffff?text=UNIP", location: { cidade: "São Paulo", bairro: "Chácara Santo Antônio", zona: "Sul", coords: { lat: -23.6100, lng: -46.7000 } }, courses: ["Administração", "Direito", "Engenharia de Produção", "Pedagogia", "Educação Física"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 30 }], monthly_cost: 900.00, pros: ["Vasta rede de campi", "Grande oferta de cursos EAD", "Custo-benefício atrativo"], cons: ["Alguns campi podem ter infraestrutura mais antiga", "Grande número de alunos por turma"], mec_score: 3 },
+                { id: 8, name: "Mackenzie", logo: "https://placehold.co/100x100/000000/ffffff?text=Mackenzie", location: { cidade: "São Paulo", bairro: "Consolação", zona: "Central", coords: { lat: -23.5478, lng: -46.6500 } }, courses: ["Engenharia Elétrica", "Arquitetura e Urbanismo", "Ciência da Computação", "Direito", "Economia"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 25 }], monthly_cost: 2500.00, pros: ["Alta reputação acadêmica", "Excelência em engenharia e arquitetura", "Localização privilegiada"], cons: ["Mensalidades muito elevadas", "Processo seletivo concorrido"], mec_score: 5 },
+
+                // Rio de Janeiro Universities
+                { id: 9, name: "Universidade Estácio de Sá", logo: "https://placehold.co/100x100/009cde/ffffff?text=Estácio", location: { cidade: "Rio de Janeiro", bairro: "Centro", zona: "Central", coords: { lat: -22.9068, lng: -43.1729 } }, courses: ["Marketing", "Gestão Financeira", "Gastronomia", "Análise e Desenvolvimento de Sistemas"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsadetransferencia", discount: 50 }], monthly_cost: 950.00, pros: ["Grande rede de campi no RJ", "Flexibilidade de ensino", "Foco em empregabilidade"], cons: ["Infraestrutura pode variar", "Alguns cursos podem ter menos reconhecimento"], mec_score: 3 },
+                { id: 10, name: "Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)", logo: "https://placehold.co/100x100/1A237E/ffffff?text=PUC-Rio", location: { cidade: "Rio de Janeiro", bairro: "Gávea", zona: "Sul", coords: { lat: -22.9770, lng: -43.2380 } }, courses: ["Comunicação Social", "Design", "Engenharia de Software", "Direito", "Relações Internacionais"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 50 }], monthly_cost: 2800.00, pros: ["Excelência acadêmica e pesquisa", "Campus bonito e bem localizado", "Ampla rede de contatos"], cons: ["Mensalidades muito altas", "Processo seletivo rigoroso"], mec_score: 5 },
+
+                // Belo Horizonte Universities
+                { id: 11, name: "Centro Universitário UNA", logo: "https://placehold.co/100x100/FF5722/ffffff?text=UNA", location: { cidade: "Belo Horizonte", bairro: "Barro Preto", zona: "Central", coords: { lat: -19.9270, lng: -43.9440 } }, courses: ["Administração", "Design de Interiores", "Gastronomia", "Engenharia Civil", "Psicologia"], scholarships: [{ type: "prouni", discount: 100 }, { type: "convenio", discount: 40 }], monthly_cost: 1100.00, pros: ["Reconhecida por inovação", "Boa infraestrutura", "Diversidade de cursos"], cons: ["Tráfego intenso na região", "Estacionamento limitado"], mec_score: 4 },
+                { id: 12, name: "Newton Paiva", logo: "https://placehold.co/100x100/673AB7/ffffff?text=Newton", location: { cidade: "Belo Horizonte", bairro: "Carlos Prates", zona: "Oeste", coords: { lat: -19.9200, lng: -43.9600 } }, courses: ["Direito", "Engenharia de Produção", "Arquitetura", "Jornalismo"], scholarships: [{ type: "bolsasocial", discount: 30 }], monthly_cost: 1050.00, pros: ["Tradição e qualidade de ensino", "Boa empregabilidade", "Campi bem localizados"], cons: ["Mensalidades medianas", "Alguns cursos com pouca oferta de turmas"], mec_score: 4 }
+            ];
+
+            const allCourses = [
+                { id: 1, name: "Direito", area: "Humanas/Direito", description: "Forma profissionais aptos a atuar na área jurídica, compreendendo leis e sistemas judiciais. Essencial para advogados, juízes e promotores.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/4a90e2/ffffff?text=Direito" },
+                { id: 2, name: "Engenharia Civil", area: "Exatas/Engenharia", description: "Prepara para projetar, construir e gerenciar obras de infraestrutura, como edifícios, pontes e estradas.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/34a853/ffffff?text=Engenharia+Civil" },
+                { id: 3, name: "Psicologia", area: "Saúde/Humanas", description: "Estuda o comportamento humano e os processos mentais, visando promover a saúde mental e o bem-estar.", duration: "5 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/fbbc05/ffffff?text=Psicologia" },
+                { id: 4, name: "Odontologia", area: "Saúde", description: "Capacita para o diagnóstico, prevenção e tratamento de doenças bucais e faciais.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/ea4335/ffffff?text=Odontologia" },
+                { id: 5, name: "Sistemas de Informação", area: "Tecnologia/Exatas", description: "Foca no desenvolvimento e gestão de sistemas computacionais para otimizar processos em organizações.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/4285f4/ffffff?text=Sistemas+de+Info" },
+                { id: 6, name: "Arquitetura e Urbanismo", area: "Artes/Engenharia", description: "Prepara para projetar e organizar espaços, tanto edificações quanto cidades, considerando estética e funcionalidade.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/0f9d58/ffffff?text=Arquitetura" },
+                { id: 7, name: "Enfermagem", area: "Saúde", description: "Forma profissionais para cuidar da saúde de indivíduos, famílias e comunidades em diversos contextos.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/3cba92/ffffff?text=Enfermagem" },
+                { id: 8, name: "Jornalismo", area: "Comunicação/Humanas", description: "Capacita para a produção e disseminação de notícias e informações em diferentes mídias.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/a742f4/ffffff?text=Jornalismo" },
+                { id: 9, name: "Publicidade e Propaganda", area: "Comunicação/Artes", description: "Prepara para criar campanhas e estratégias de comunicação para marcas e produtos.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/f4c20d/ffffff?text=Publicidade" },
+                { id: 10, name: "Fisioterapia", area: "Saúde", description: "Foca na reabilitação e prevenção de lesões e doenças através de movimentos e terapias físicas.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/c53929/ffffff?text=Fisioterapia" },
+                { id: 11, name: "Administração", area: "Negócios/Gestão", description: "Prepara para gerenciar recursos, pessoas e processos em organizações de diversos portes e setores.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/007BFF/ffffff?text=Administração" },
+                { id: 12, name: "Medicina Veterinária", area: "Saúde", description: "Capacita para cuidar da saúde e bem-estar de animais, além de atuar na produção de alimentos de origem animal.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/673AB7/ffffff?text=Veterinária" },
+                { id: 13, name: "Filosofia", area: "Humanas", description: "Estuda questões fundamentais sobre a existência, o conhecimento, os valores, a razão e a mente.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/8BC34A/ffffff?text=Filosofia" },
+                { id: 14, name: "Ciência da Computação", area: "Tecnologia/Exatas", description: "Foca na teoria e aplicação de computadores, incluindo algoritmos, estruturas de dados e inteligência artificial.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/2196F3/ffffff?text=Ciência+da+Computação" },
+                { id: 15, name: "Ciências Contábeis", area: "Negócios/Exatas", description: "Prepara para registrar, analisar e interpretar informações financeiras e econômicas de empresas.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/FFC107/ffffff?text=Contábeis" },
+                { id: 16, name: "Gestão de RH", area: "Negócios/Humanas", description: "Capacita para gerenciar pessoas dentro de uma organização, incluindo recrutamento, treinamento e desenvolvimento.", duration: "2 anos", modality: "Tecnólogo/EAD", image: "https://placehold.co/300x200/9C27B0/ffffff?text=Gestão+RH" },
+                { id: 17, name: "Educação Física", area: "Saúde/Humanas", description: "Forma profissionais para promover a saúde e o bem-estar através da prática de atividades físicas e esportes.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/00BCD4/ffffff?text=Educação+Física" },
+                { id: 18, name: "Marketing", area: "Negócios/Comunicação", description: "Estuda o mercado e as estratégias para promover produtos, serviços e marcas, atraindo e retendo clientes.", duration: "2-4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/FF9800/ffffff?text=Marketing" },
+                { id: 19, name: "Moda", area: "Artes/Design", description: "Prepara para atuar na criação, produção e gestão de coleções de moda, cobrindo desde o design até o marketing.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/E91E63/ffffff?text=Moda" },
+                { id: 20, name: "Design Gráfico", area: "Artes/Tecnologia", description: "Foca na criação de soluções visuais para comunicação, como logotipos, websites, embalagens e publicações.", duration: "3-4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/607D8B/ffffff?text=Design+Gráfico" },
+                { id: 21, name: "Gastronomia", area: "Saúde/Artes", description: "Capacita para a arte e ciência da culinária, incluindo técnicas de preparo, gestão de restaurantes e cultura alimentar.", duration: "2 anos", modality: "Tecnólogo/Presencial", image: "https://placehold.co/300x200/795548/ffffff?text=Gastronomia" },
+                { id: 22, name: "Cinema", area: "Artes/Comunicação", description: "Prepara para todas as etapas da produção cinematográfica, desde o roteiro e direção até a edição e distribuição.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/4CAF50/ffffff?text=Cinema" },
+                { id: 23, name: "Engenharia de Produção", area: "Exatas/Engenharia", description: "Otimiza processos produtivos em indústrias e serviços, unindo conhecimentos de engenharia, economia e administração.", duration: "5 anos", modality: "Presencial", image: "https://placehold.co/300x200/2196F3/ffffff?text=Engenharia+Produção" },
+                { id: 24, name: "Pedagogia", area: "Humanas/Educação", description: "Forma educadores para atuar na docência, gestão escolar e desenvolvimento de projetos pedagógicos.", duration: "4 anos", modality: "Presencial/EAD", image: "https://placehold.co/300x200/FFEB3B/ffffff?text=Pedagogia" },
+                { id: 25, name: "Economia", area: "Humanas/Negócios", description: "Analisa a produção, distribuição e consumo de bens e serviços, e o comportamento de mercados e governos.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/7CB342/ffffff?text=Economia" },
+                { id: 26, name: "Relações Internacionais", area: "Humanas/Negócios", description: "Estuda as interações entre países, organizações e atores globais, abordando política, economia e cultura.", duration: "4 anos", modality: "Presencial", image: "https://placehold.co/300x200/AB47BC/ffffff?text=Relações+Internacionais" },
+                { id: 27, name: "Design de Interiores", area: "Artes/Design", description: "Cria e otimiza espaços internos, combinando estética, funcionalidade e conforto para ambientes residenciais e comerciais.", duration: "2-3 anos", modality: "Tecnólogo/Presencial", image: "https://placehold.co/300x200/FF5722/ffffff?text=Design+Interiores" }
+            ];
+
+            const blogPosts = [
+                { id: 1, title: "Como escolher o curso certo para você?", date: "15 de Julho de 2025", author: "Equipe Estima", summary: "Dicas essenciais para identificar suas paixões e habilidades antes de decidir qual curso superior seguir.", image: "https://placehold.co/300x200/80CBC4/000000?text=Escolha+do+Curso" },
+                { id: 2, title: "Guia completo de bolsas de estudo: Prouni, FIES e mais!", date: "10 de Julho de 2025", author: "Ana Clara Silva", summary: "Entenda os principais programas de auxílio financeiro para o ensino superior e como se candidatar.", image: "https://placehold.co/300x200/A5D6A7/000000?text=Bolsas+de+Estudo" },
+                { id: 3, title: "Preparação para o ENEM: Estratégias de estudo eficazes", date: "05 de Julho de 2025", author: "Prof. Ricardo Mendes", summary: "Conheça métodos de estudo comprovados para otimizar sua performance no Exame Nacional do Ensino Médio.", image: "https://placehold.co/300x200/C5CAE9/000000?text=Preparo+ENEM" },
+                { id: 4, title: "A importância da vida universitária além da sala de aula", date: "01 de Julho de 2025", author: "Maria Eduarda Lima", summary: "Descubra como atividades extracurriculares, intercâmbios e networking podem enriquecer sua jornada acadêmica.", image: "https://placehold.co/300x200/FFCDD2/000000?text=Vida+Universitária" }
+            ];
+
+            const quizQuestions = [
+                { id: 1, question: "No seu tempo livre, você prefere...", answers: { "Ler, escrever ou debater ideias complexas": ["Humanas", "Comunicação", "Direito", "Filosofia", "Pesquisa"], "Organizar coisas, planejar ou lidar com números e finanças": ["Negócios", "Exatas", "Gestão", "Contabilidade", "Economia"], "Criar, desenhar ou imaginar soluções visuais e estéticas": ["Artes", "Design", "Arquitetura", "Moda", "Design Gráfico", "Design de Interiores"], "Ajudar pessoas, cuidar do bem-estar ou entender o comportamento humano": ["Saúde", "Psicologia", "Serviço Social", "Medicina", "Enfermagem", "Fisioterapia"], "Construir, programar ou resolver problemas tecnológicos": ["Tecnologia", "Engenharia", "Exatas", "Sistemas de Informação", "Ciência da Computação"] } },
+                { id: 2, question: "Qual tipo de desafio mais te atrai?", answers: { "Resolver problemas lógicos e complexos, com dados e algoritmos": ["Exatas", "Tecnologia", "Engenharia", "Ciência da Computação"], "Entender e melhorar a sociedade, a cultura e as relações humanas": ["Humanas", "Direito", "Serviço Social", "Relações Internacionais"], "Cuidar do bem-estar físico e mental de outros, aplicando conhecimentos científicos": ["Saúde", "Medicina", "Enfermagem", "Fisioterapia", "Psicologia"], "Inovar e criar um novo produto, serviço ou modelo de negócio": ["Negócios", "Marketing", "Empreendedorismo", "Gestão"], "Comunicar ideias de forma eficaz, seja por texto, imagem ou vídeo": ["Comunicação", "Jornalismo", "Publicidade", "Cinema"] } },
+                { id: 3, question: "Que tipo de ambiente de trabalho você se imagina prosperando?", answers: { "Um escritório dinâmico, gerenciando projetos e equipes": ["Negócios", "Gestão", "Administração"], "Um laboratório, hospital ou clínica, focado em pesquisa ou atendimento": ["Saúde", "Exatas", "Medicina", "Enfermagem"], "Uma agência criativa, redação ou estúdio de design": ["Comunicação", "Artes", "Design", "Jornalismo", "Publicidade"], "Um tribunal, sala de aula, ONG ou ambiente de pesquisa acadêmica": ["Humanas", "Direito", "Educação", "Filosofia"], "Um ambiente de desenvolvimento de software, fábrica ou canteiro de obras": ["Tecnologia", "Engenharia", "Sistemas de Informação"] } },
+                { id: 4, question: "Qual destas atividades te parece mais recompensadora?", answers: { "Ver um projeto complexo que você planejou ser executado com sucesso": ["Engenharia", "Negócios", "Exatas", "Arquitetura"], "Ajudar alguém a superar um problema pessoal ou de saúde": ["Saúde", "Psicologia", "Serviço Social", "Fisioterapia"], "Criar uma obra de arte ou um design que inspire outras pessoas": ["Artes", "Design", "Arquitetura", "Moda", "Cinema"], "Descobrir uma nova teoria ou conhecimento que mude a forma como pensamos": ["Humanas", "Filosofia", "Pesquisa", "Economia"], "Desenvolver um sistema ou aplicativo que simplifique a vida das pessoas": ["Tecnologia", "Sistemas de Informação", "Ciência da Computação"] } },
+                { id: 5, question: "Ao aprender algo novo, você prefere...", answers: { "Estudar a teoria a fundo, entender os princípios": ["Exatas", "Humanas", "Filosofia", "Direito"], "Colocar a mão na massa, experimentar e praticar": ["Engenharia", "Tecnologia", "Artes", "Gastronomia"], "Trabalhar em grupo, discutir e trocar ideias": ["Comunicação", "Direito", "Serviço Social", "Relações Internacionais"], "Analisar dados e estatísticas para tomar decisões": ["Negócios", "Exatas", "Contabilidade", "Economia"], "Observar e interagir com pessoas para entender suas necessidades": ["Saúde", "Psicologia", "Educação"] } }
+            ];
+            
+            // --- DOM Elements ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const homeSectionButtons = document.querySelectorAll('[data-section-btn]');
+
+            // Universities Section Elements
+            const locationFilter = document.getElementById('locationFilter');
+            const courseFilter = document.getElementById('courseFilter');
+            const costFilter = document.getElementById('costFilter');
+            const costValue = document.getElementById('costValue');
+            const scholarshipFilter = document.getElementById('scholarshipFilter');
+            const distanceFilter = document.getElementById('distanceFilter');
+            const distanceValue = document.getElementById('distanceValue');
+            const sortBy = document.getElementById('sortBy');
+            const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+            const universityResults = document.getElementById('universityResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const noResults = document.getElementById('noResults');
+            
+            // General Elements
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const openQuizBtnFloating = document.getElementById('openQuizBtnFloating');
+            const openQuizBtnHome = document.getElementById('openQuizBtnHome'); // New button on home page
+
+            // Modals
+            const detailsModal = document.getElementById('detailsModal');
+            const quizModal = document.getElementById('quizModal');
+            const quizStepContainer = document.getElementById('quizStepContainer');
+            const quizResultContainer = document.getElementById('quizResultContainer');
+
+            // Courses Section Elements
+            const courseSearch = document.getElementById('courseSearch');
+            const courseResults = document.getElementById('courseResults');
+            const noCourseResults = document.getElementById('noCourseResults');
+
+            // Blog Section Elements
+            const blogPostsContainer = document.getElementById('blogPosts');
+
+            // Contact Section Elements
+            const contactForm = document.getElementById('contactForm');
+            const contactMessageStatus = document.getElementById('contactMessageStatus');
+
+            // --- State ---
+            let filters = {
+                location: '',
+                course: '',
+                maxCost: 5000,
+                scholarship: 'todas',
+                radius: 100,
+                sortBy: 'default'
+            };
+            // Simulated user location in Ibura, Recife
+            const userLocation = { lat: -8.1299, lng: -34.9355 }; 
+            let map;
+            let userMarker;
+            let userRadiusCircle;
+            let universityMarkers = [];
+            
+            // Custom Leaflet Icons
+            const userIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+            const uniIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+
+            // Quiz State
+            var quizScores; 
+            var quizStep;   
+
+            // --- Navigation Logic ---
+            function showSection(sectionId) {
+                pageSections.forEach(section => {
+                    section.classList.remove('active');
+                    section.style.display = 'none'; // Ensure it's hidden
+                });
+                const activeSection = document.getElementById(sectionId);
+                if (activeSection) {
+                    activeSection.classList.add('active');
+                    activeSection.style.display = 'block'; // Show it
+                    // Scroll to top of the section
+                    activeSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Update active nav link
+                navLinks.forEach(link => {
+                    if (link.dataset.section === sectionId) {
+                        link.classList.add('text-blue-600', 'dark:text-blue-400');
+                        link.classList.remove('text-gray-600', 'dark:text-gray-300');
+                    } else {
+                        link.classList.remove('text-blue-600', 'dark:text-blue-400');
+                        link.classList.add('text-gray-600', 'dark:text-gray-300');
+                    }
+                });
+
+                // Re-initialize map if navigating to universities section
+                if (sectionId === 'universities' && map) {
+                    map.invalidateSize(); // Fixes map tile loading issues after display:none
+                }
+            }
+
+            // --- Map Initialization ---
+            function initMap() {
+                map = L.map('interactiveMap').setView([userLocation.lat, userLocation.lng], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map)
+                    .bindPopup('<b>Sua Localização</b><br>(Simulada no Ibura, Recife)')
+                    .openPopup();
+                
+                // Add initial radius circle
+                userRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
+                    color: 'blue',
+                    fillColor: '#3080ff',
+                    fillOpacity: 0.1,
+                    radius: filters.radius * 1000 // Convert km to meters
+                }).addTo(map);
+            }
+
+            // --- Core Functions (Universities) ---
+            function getDistanceInKm(lat1, lon1, lat2, lon2) {
+                const R = 6371; // Radius of Earth in kilometers
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+
+            function renderUniversityCards(filteredUnis) {
+                universityResults.innerHTML = '';
+                if (filteredUnis.length === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+
+                filteredUnis.forEach(uni => {
+                    const distance = getDistanceInKm(userLocation.lat, userLocation.lng, uni.location.coords.lat, uni.location.coords.lng);
+                    // Simplified transport cost: R$0.50 per km, round trip, 22 days/month (approx. 1 month)
+                    const transportCost = distance * 0.50 * 2 * 22; 
+                    const totalCost = uni.monthly_cost + transportCost;
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 flex flex-col border border-gray-100 dark:border-gray-700';
+                    card.innerHTML = `
+                        <div class="p-5 flex-grow">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <img src="${uni.logo}" alt="Logo da ${uni.name}" class="h-16 w-16 object-contain rounded-md bg-gray-100 dark:bg-gray-700 p-1 shadow-sm">
+                                <div>
+                                    <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400">${uni.name}</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">${uni.location.bairro}, ${uni.location.cidade} - Zona ${uni.location.zona}</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                                <p><strong>Distância:</strong> ${distance.toFixed(1)} km de você</p>
+                                <p><strong>Cursos Populares:</strong> ${uni.courses.slice(0, 3).join(', ')}${uni.courses.length > 3 ? '...' : ''}</p>
+                                <p><strong>Nota MEC:</strong> <span class="text-yellow-500">${'⭐'.repeat(uni.mec_score)}</span><span class="text-gray-400">${'⭐'.repeat(5 - uni.mec_score)}</span></p>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <h4 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">Estimativa de Custo Mensal Total</h4>
+                                <div class="text-sm space-y-1">
+                                    <p class="flex justify-between"><span>Mensalidade:</span> <span class="font-medium">R$ ${uni.monthly_cost.toFixed(2)}</span></p>
+                                    <p class="flex justify-between"><span>Transporte (est.):</span> <span class="text-orange-500 font-medium">~ R$ ${transportCost.toFixed(2)}</span></p>
+                                    <p class="flex justify-between text-lg font-bold mt-2"><span>Total Estimado:</span> <span class="text-green-600 dark:text-green-400">R$ ${totalCost.toFixed(2)}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-gray-50 dark:bg-gray-700/50">
+                            <button data-id="${uni.id}" class="details-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                                Ver Detalhes e Prós/Contras
+                            </button>
+                        </div>
+                    `;
+                    universityResults.appendChild(card);
+                });
+                resultsCount.textContent = filteredUnis.length;
+                
+                // Add event listeners to new buttons
+                document.querySelectorAll('.details-btn').forEach(btn => {
+                    btn.addEventListener('click', () => openDetailsModal(parseInt(btn.dataset.id)));
+                });
+            }
+
+            function updateMap(filteredUnis) {
+                // Clear previous markers and radius circle if exists
+                universityMarkers.forEach(marker => map.removeLayer(marker));
+                universityMarkers = [];
+                if (userRadiusCircle) {
+                    map.removeLayer(userRadiusCircle);
+                }
+
+                // Update user radius circle
+                userRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
+                    color: 'blue',
+                    fillColor: '#3080ff',
+                    fillOpacity: 0.1,
+                    radius: filters.radius * 1000 // Convert km to meters
+                }).addTo(map);
+
+                // Add new markers
+                filteredUnis.forEach(uni => {
+                    const marker = L.marker([uni.location.coords.lat, uni.location.coords.lng], { icon: uniIcon }).addTo(map)
+                        .bindPopup(`<b>${uni.name}</b><br>${uni.location.bairro}, ${uni.location.cidade}`);
+                    universityMarkers.push(marker);
+                });
+
+                // Adjust map bounds to fit all markers and user location
+                if (filteredUnis.length > 0) {
+                    const latLngs = filteredUnis.map(uni => [uni.location.coords.lat, uni.location.coords.lng]);
+                    latLngs.push([userLocation.lat, userLocation.lng]); // Include user location
+                    const bounds = L.latLngBounds(latLngs);
+                    map.fitBounds(bounds.pad(0.1)); // Add some padding
+                } else {
+                    // If no results, center map on user location
+                    map.setView([userLocation.lat, userLocation.lng], 12);
+                }
+            }
+
+            function applyFilters() {
+                let result = universities;
+
+                // Apply location filter (city or neighborhood)
+                if (filters.location) {
+                    const searchLower = filters.location.toLowerCase();
+                    result = result.filter(uni => 
+                        uni.location.cidade.toLowerCase().includes(searchLower) || 
+                        uni.location.bairro.toLowerCase().includes(searchLower)
+                    );
+                }
+
+                // Apply course filter
+                if (filters.course) {
+                    const courseLower = filters.course.toLowerCase();
+                    result = result.filter(uni => uni.courses.some(c => c.toLowerCase().includes(courseLower)));
+                }
+
+                // Apply max cost filter
+                result = result.filter(uni => uni.monthly_cost <= filters.maxCost);
+
+                // Apply scholarship filter
+                if (filters.scholarship !== 'todas') {
+                    result = result.filter(uni => uni.scholarships.some(s => s.type === filters.scholarship));
+                }
+
+                // Apply distance filter
+                result = result.filter(uni => {
+                    const distance = getDistanceInKm(userLocation.lat, userLocation.lng, uni.location.coords.lat, uni.location.coords.lng);
+                    return distance <= filters.radius;
+                });
+
+                // Apply sorting
+                if (filters.sortBy === 'cost-asc') {
+                    result.sort((a, b) => a.monthly_cost - b.monthly_cost);
+                } else if (filters.sortBy === 'cost-desc') {
+                    result.sort((a, b) => b.monthly_cost - a.monthly_cost);
+                } else if (filters.sortBy === 'mec-desc') {
+                    result.sort((a, b) => b.mec_score - a.mec_score);
+                } else if (filters.sortBy === 'distance-asc') {
+                    result.sort((a, b) => {
+                        const distA = getDistanceInKm(userLocation.lat, userLocation.lng, a.location.coords.lat, a.location.coords.lng);
+                        const distB = getDistanceInKm(userLocation.lat, userLocation.lng, b.location.coords.lat, b.location.coords.lng);
+                        return distA - distB;
+                    });
+                }
+                // 'default' (relevance) sorting is implied by initial data order or can be custom defined if needed
+
+                renderUniversityCards(result);
+                updateMap(result);
+            }
+
+            function clearAllFilters() {
+                filters = {
+                    location: '',
+                    course: '',
+                    maxCost: 5000,
+                    scholarship: 'todas',
+                    radius: 100,
+                    sortBy: 'default'
+                };
+                locationFilter.value = '';
+                courseFilter.value = '';
+                costFilter.value = 5000;
+                costValue.textContent = `R$ 5000`;
+                scholarshipFilter.value = 'todas';
+                distanceFilter.value = 100;
+                distanceValue.textContent = `100 km`;
+                sortBy.value = 'default';
+                applyFilters();
+            }
+
+            // --- Event Listeners (Universities Filters) ---
+            locationFilter.addEventListener('input', (e) => {
+                filters.location = e.target.value;
+                applyFilters();
+            });
+            courseFilter.addEventListener('input', (e) => {
+                filters.course = e.target.value;
+                applyFilters();
+            });
+            costFilter.addEventListener('input', (e) => {
+                filters.maxCost = parseInt(e.target.value);
+                costValue.textContent = `R$ ${filters.maxCost}`;
+                applyFilters();
+            });
+            scholarshipFilter.addEventListener('change', (e) => {
+                filters.scholarship = e.target.value;
+                applyFilters();
+            });
+            distanceFilter.addEventListener('input', (e) => {
+                filters.radius = parseInt(e.target.value);
+                distanceValue.textContent = `${filters.radius} km`;
+                applyFilters();
+            });
+            sortBy.addEventListener('change', (e) => {
+                filters.sortBy = e.target.value;
+                applyFilters();
+            });
+            clearFiltersBtn.addEventListener('click', clearAllFilters);
+
+            // --- Dark Mode ---
+            if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('darkMode', isDark);
+                sunIcon.classList.toggle('hidden', isDark);
+                moonIcon.classList.toggle('hidden', !isDark);
+            });
+            
+            // --- Modal Logic ---
+            function openModal(modalElement) {
+                modalElement.classList.remove('hidden');
+                setTimeout(() => modalElement.classList.add('active'), 10); // Small delay for transition
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+            }
+
+            function closeModal(modalElement) {
+                modalElement.classList.remove('active');
+                setTimeout(() => modalElement.classList.add('hidden'), 300); // Wait for transition to finish
+                document.body.style.overflow = 'auto';
+            }
+
+            function openDetailsModal(uniId) {
+                const uni = universities.find(u => u.id === uniId);
+                if (!uni) return;
+
+                const content = `
+                    <div class="p-6 md:p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h2 class="text-3xl font-extrabold text-blue-700 dark:text-blue-400">${uni.name}</h2>
+                            <button class="close-modal-btn p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl leading-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">&times;</button>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">Nota MEC: <span class="text-yellow-500">${'⭐'.repeat(uni.mec_score)}</span><span class="text-gray-400">${'⭐'.repeat(5 - uni.mec_score)}</span></p>
+                        
+                        <div class="grid md:grid-cols-2 gap-8 mb-6">
+                            <div>
+                                <h3 class="font-bold text-xl text-green-600 dark:text-green-400 mb-3 flex items-center"><svg class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Prós</h3>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base">
+                                    ${uni.pros.map(p => `<li>${p}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl text-red-500 dark:text-red-400 mb-3 flex items-center"><svg class="h-6 w-6 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> Contras</h3>
+                                <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base">
+                                    ${uni.cons.map(c => `<li>${c}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h3 class="font-bold text-xl text-gray-900 dark:text-gray-100 mb-3">Cursos Oferecidos</h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${uni.courses.map(course => `<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm font-medium px-3 py-1 rounded-full">${course}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <h3 class="font-bold text-xl text-gray-900 dark:text-gray-100 mb-3">Bolsas e Financiamentos</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 text-base">
+                                ${uni.scholarships.map(s => `<li>${s.type.charAt(0).toUpperCase() + s.type.slice(1)} ${s.discount > 0 ? `(${s.discount}% de desconto)` : ''}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="px-6 md:px-8 py-4 bg-gray-100 dark:bg-gray-700/50 text-right rounded-b-xl">
+                        <button class="close-modal-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">Fechar</button>
+                    </div>
+                `;
+                document.getElementById('detailsModalContent').innerHTML = content;
+                openModal(detailsModal);
+
+                detailsModal.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', () => closeModal(detailsModal)));
+            }
+
+            // --- Quiz Logic ---
+            var quizScores; 
+            var quizStep;   
+
+            function startQuiz() {
+                quizScores = { "Humanas": 0, "Comunicação": 0, "Negócios": 0, "Exatas": 0, "Tecnologia": 0, "Saúde": 0, "Artes": 0, "Design": 0, "Arquitetura": 0, "Direito": 0, "Gestão": 0, "Medicina": 0, "Enfermagem": 0, "Psicologia": 0, "Serviço Social": 0, "Marketing": 0, "Empreendedorismo": 0, "Jornalismo": 0, "Publicidade": 0, "Engenharia": 0, "Sistemas de Informação": 0, "Filosofia": 0, "Pesquisa": 0, "Educação": 0 };
+                quizStep = 0;
+                quizResultContainer.classList.add('hidden');
+                quizStepContainer.classList.remove('hidden');
+                renderQuizStep();
+                openModal(quizModal);
+            }
+            
+            function renderQuizStep() {
+                if (quizStep >= quizQuestions.length) {
+                    calculateQuizResult();
+                    return;
+                }
+
+                const currentQuestion = quizQuestions[quizStep];
+                let content = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Quiz Vocacional</h3>
+                        <button class="close-quiz-btn p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl leading-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">&times;</button>
+                    </div>
+                    <p class="font-semibold mb-1 text-blue-600 dark:text-blue-400">Pergunta ${quizStep + 1}/${quizQuestions.length}</p>
+                    <p class="mb-6 text-gray-800 dark:text-gray-200 text-lg">${currentQuestion.question}</p>
+                    <div class="space-y-3">
+                        ${Object.entries(currentQuestion.answers).map(([answer, areas]) => `
+                            <button data-areas='${JSON.stringify(areas)}' class="quiz-answer-btn w-full text-left p-3 bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors duration-200 shadow-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                ${answer}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button id="prevQuizBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-5 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 ${quizStep === 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${quizStep === 0 ? 'disabled' : ''}>
+                            Voltar
+                        </button>
+                    </div>
+                `;
+                quizStepContainer.innerHTML = content;
+
+                quizStepContainer.querySelectorAll('.quiz-answer-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const areas = JSON.parse(e.target.dataset.areas);
+                        areas.forEach(area => {
+                            if (quizScores[area] !== undefined) {
+                                quizScores[area]++;
+                            }
+                        });
+                        quizStep++;
+                        renderQuizStep();
+                    });
+                });
+
+                document.querySelector('.close-quiz-btn').addEventListener('click', () => closeModal(quizModal));
+                document.getElementById('prevQuizBtn').addEventListener('click', () => {
+                    if (quizStep > 0) {
+                        quizStep--;
+                        // A more robust undo would require storing previous choices or re-calculating from start
+                        // For simplicity, we just go back, scores remain accumulated.
+                        renderQuizStep();
+                    }
+                });
+            }
+            
+            function calculateQuizResult() {
+                const sortedScores = Object.entries(quizScores).sort(([, scoreA], [, scoreB]) => scoreB - scoreA);
+                const topAreas = sortedScores.slice(0, 3).filter(([, score]) => score > 0);
+
+                let resultHtml = `
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Seu Resultado Vocacional</h3>
+                        <button class="close-quiz-btn p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl leading-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full">&times;</button>
+                    </div>
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">Com base nas suas respostas, as áreas que mais se destacam para você são:</p>
+                `;
+
+                if (topAreas.length === 0) {
+                    resultHtml += `<p class="text-lg font-semibold text-orange-500">Não foi possível determinar uma área clara. Tente novamente!</p>`;
+                } else {
+                    resultHtml += `<ul class="list-disc list-inside text-left mx-auto max-w-xs space-y-2 mb-6">`;
+                    topAreas.forEach(([area, score], index) => {
+                        resultHtml += `<li class="text-lg font-semibold text-blue-600 dark:text-blue-400">${index + 1}. ${area}</li>`;
+                    });
+                    resultHtml += `</ul>`;
+                    resultHtml += `<p class="text-sm text-gray-600 dark:text-gray-400">Lembre-se que este é um guia. Explore os cursos relacionados a essas áreas em nossa plataforma!</p>`;
+                }
+                
+                resultHtml += `
+                    <div class="mt-6 text-center">
+                        <button id="restartQuizBtn" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-5 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-md mr-3">
+                            Refazer Quiz
+                        </button>
+                        <button class="close-quiz-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-md">
+                            Fechar
+                        </button>
+                    </div>
+                `;
+
+                quizResultContainer.innerHTML = resultHtml;
+                quizStepContainer.classList.add('hidden');
+                quizResultContainer.classList.remove('hidden');
+
+                document.querySelector('.close-quiz-btn').addEventListener('click', () => closeModal(quizModal));
+                document.getElementById('restartQuizBtn').addEventListener('click', startQuiz);
+            }
+
+            // --- Course Section Logic ---
+            function renderCourseCards(filteredCourses) {
+                courseResults.innerHTML = '';
+                if (filteredCourses.length === 0) {
+                    noCourseResults.classList.remove('hidden');
+                } else {
+                    noCourseResults.classList.add('hidden');
+                }
+
+                filteredCourses.forEach(course => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 border border-gray-100 dark:border-gray-700';
+                    card.innerHTML = `
+                        <img src="${course.image}" alt="Imagem do curso de ${course.name}" class="w-full h-40 object-cover">
+                        <div class="p-5">
+                            <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400 mb-2">${course.name}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">${course.area}</p>
+                            <p class="text-gray-700 dark:text-gray-300 text-sm mb-4">${course.description.substring(0, 100)}...</p>
+                            <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                                <span>Duração: ${course.duration}</span>
+                                <span>Modalidade: ${course.modality}</span>
+                            </div>
+                        </div>
+                    `;
+                    courseResults.appendChild(card);
+                });
+            }
+
+            function filterCourses() {
+                const searchTerm = courseSearch.value.toLowerCase();
+                const filtered = allCourses.filter(course => 
+                    course.name.toLowerCase().includes(searchTerm) || 
+                    course.area.toLowerCase().includes(searchTerm) ||
+                    course.description.toLowerCase().includes(searchTerm)
+                );
+                renderCourseCards(filtered);
+            }
+
+            // --- Blog Section Logic ---
+            function renderBlogPosts() {
+                blogPostsContainer.innerHTML = '';
+                blogPosts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 border border-gray-100 dark:border-gray-700';
+                    card.innerHTML = `
+                        <img src="${post.image}" alt="Imagem do artigo: ${post.title}" class="w-full h-40 object-cover">
+                        <div class="p-5">
+                            <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400 mb-2">${post.title}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Por ${post.author} em ${post.date}</p>
+                            <p class="text-gray-700 dark:text-gray-300 text-sm mb-4">${post.summary}</p>
+                            <a href="#" class="text-blue-500 hover:underline font-medium text-sm">Ler mais</a>
+                        </div>
+                    `;
+                    blogPostsContainer.appendChild(card);
+                });
+            }
+
+            // --- Contact Form Logic ---
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('contactName').value;
+                const email = document.getElementById('contactEmail').value;
+                const subject = document.getElementById('contactSubject').value;
+                const message = document.getElementById('contactMessage').value;
+
+                console.log('Mensagem de Contato Recebida:', { name, email, subject, message });
+                
+                contactMessageStatus.classList.remove('hidden', 'text-red-500');
+                contactMessageStatus.classList.add('text-green-600');
+                contactMessageStatus.textContent = 'Mensagem enviada com sucesso! Em breve entraremos em contato.';
+                contactForm.reset();
+
+                setTimeout(() => {
+                    contactMessageStatus.classList.add('hidden');
+                }, 5000);
+            });
+
+
+            // --- Initial Calls and Event Listeners ---
+            initMap();
+            applyFilters(); // Render initial university cards and map markers
+            renderCourseCards(allCourses); // Render initial course cards
+            renderBlogPosts(); // Render initial blog posts
+
+            // Navigation event listeners
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showSection(e.target.dataset.section);
+                });
+            });
+
+            // Home section buttons to navigate
+            homeSectionButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    showSection(e.target.dataset.sectionBtn);
+                });
+            });
+
+            // Quiz button listeners
+            openQuizBtnFloating.addEventListener('click', startQuiz);
+            openQuizBtnHome.addEventListener('click', startQuiz);
+
+            // Course search listener
+            courseSearch.addEventListener('input', filterCourses);
+
+            // Show initial section (Home)
+            showSection('home');
+        });
+    </script>
+</body>
+</html>
