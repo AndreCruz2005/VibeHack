@@ -1,5 +1,11 @@
 # ESTIMA EDUCAÇÃO - Conectando Periferias à Educação de Qualidade
 
+## Equipe
+- André Vinícius Nascimento Cruz
+- Thiago José Barbosa
+- Arthur Gabriel Silva da Luz
+- Caio César Melquiades Leitão 
+
 ## 🎯 Objetivo
 
 O ESTIMA EDUCAÇÃO é uma plataforma inovadora que conecta pessoas da periferia com oportunidades educacionais de qualidade. Nosso foco é tornar a **motivação mais engajante** para pessoas da periferia, considerando a **falta de orientação profissional ou de carreira**.
