@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estima Modern – Seu Guia Inteligente de Universidades</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Google Fonts: Lexend -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles and Modern Theme -->
+    <style>
+        :root {
+            --color-primary: #4f46e5; /* Indigo */
+            --color-secondary: #ec4899; /* Pink */
+            --color-accent: #f59e0b; /* Amber */
+            --color-bg-dark: #111827; /* Gray 900 */
+            --color-surface-dark: #1f2937; /* Gray 800 */
+            --color-glass-dark: rgba(31, 41, 55, 0.5); /* Gray 800 with opacity */
+        }
+
+        html {
+            background-color: var(--color-bg-dark);
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background-color: var(--color-bg-dark);
+            color: #d1d5db; /* Gray 300 */
+        }
+
+        /* Custom Text & Button Styles */
+        .text-primary {
+            color: var(--color-primary);
+        }
+        .text-secondary {
+            color: var(--color-secondary);
+        }
+        .highlight-button {
+            transition: all 0.3s ease;
+            background-color: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+        }
+        .highlight-button:hover {
+            background-color: #4338ca; /* Indigo 700 */
+            box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.5);
+        }
+        .secondary-button {
+             transition: all 0.3s ease;
+             border: 1px solid var(--color-primary);
+             color: var(--color-primary);
+        }
+        .secondary-button:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: var(--color-glass-dark);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--color-bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--color-surface-dark); border-radius: 10px; border: 1px solid var(--color-primary); }
+        
+        /* Leaflet Dark Map - Using CartoDB Dark Matter theme */
+        #interactiveMap { height: 400px; background-color: #222; border-radius: 0.5rem; }
+        
+        /* Custom styled inputs */
+        .form-input, .form-select {
+            background-color: rgba(17, 24, 39, 0.8); /* Gray 900 */
+            border: 1px solid #374151; /* Gray 700 */
+            transition: all 0.3s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5);
+        }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { height: 6px; background: #374151; border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; background: var(--color-primary); border-radius: 50%; border: 2px solid white; cursor: pointer; margin-top: -7px; }
+
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Background decorative elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+        <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full filter blur-3xl opacity-50 animate-pulse"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-pink-600/10 rounded-full filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-effect sticky top-0 z-40">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-3xl font-bold text-white tracking-wider">
+                Estima
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#fraud-tips" class="hidden md:block text-sm font-medium text-gray-300 hover:text-white transition-colors">Dicas de Segurança</a>
+                <a href="#contact" class="hidden md:block text-sm font-medium text-gray-300 hover:text-white transition-colors">Contato</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6">
+        <!-- Hero Section -->
+        <section class="text-center my-16 md:my-24">
+            <h1 class="text-4xl md:text-6xl font-bold leading-tight text-white">
+                Encontre a <span class="text-primary">Universidade</span> Certa para Você
+            </h1>
+            <p class="mt-6 text-lg max-w-3xl mx-auto text-gray-400">
+                A plataforma inteligente que conecta você à universidade ideal em Recife, com a precisão que seu sonho merece.
+            </p>
+        </section>
+
+        <!-- Main Content: Filters + Results -->
+        <div id="filters" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Filters Panel -->
+            <aside class="lg:col-span-4 xl:col-span-3">
+                <div class="glass-effect p-6 rounded-lg sticky top-24">
+                    <h3 class="text-xl font-bold mb-6 text-center text-white">Filtros Inteligentes</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="courseFilter" class="block text-sm font-medium mb-2">Curso Desejado</label>
+                            <input type="text" id="courseFilter" placeholder="Ex: Sistemas de Informação" class="form-input w-full rounded-md p-2 text-white">
+                        </div>
+                        <div>
+                            <label for="costFilter" class="block text-sm font-medium mb-2">Custo Máximo: <span id="costValue" class="font-bold text-primary">R$ 3000</span></label>
+                            <input type="range" id="costFilter" min="500" max="3000" step="50" value="3000">
+                        </div>
+                        <div>
+                            <label for="scholarshipFilter" class="block text-sm font-medium mb-2">Tipo de Bolsa</label>
+                            <select id="scholarshipFilter" class="form-select w-full rounded-md p-2 text-white">
+                                <option value="todas">Todas as opções</option>
+                                <option value="prouni">Prouni</option>
+                                <option value="bolsasocial">Bolsa Social</option>
+                                <option value="financiamento">Financiamento</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="distanceFilter" class="block text-sm font-medium mb-2">Distância Máxima: <span id="distanceValue" class="font-bold text-primary">50 km</span></label>
+                            <input type="range" id="distanceFilter" min="1" max="50" step="1" value="50">
+                        </div>
+                        <button id="locateUserBtn" class="w-full text-sm secondary-button rounded-md py-2 flex items-center justify-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                            <span>Usar minha localização</span>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Results and Map Section -->
+            <div class="lg:col-span-8 xl:col-span-9 space-y-8">
+                <section class="glass-effect p-4 rounded-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-white">Mapa Interativo</h2>
+                    <div id="interactiveMap"></div>
+                </section>
+
+                <section>
+                    <h2 class="text-2xl font-bold mb-4 text-white">Resultados (<span id="resultsCount">0</span> encontrados)</h2>
+                    <div id="universityResults" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- University cards will be injected here -->
+                    </div>
+                    <div id="noResults" class="hidden text-center py-10 px-6 glass-effect rounded-lg">
+                        <p class="font-semibold text-xl text-secondary">Nenhuma universidade encontrada</p>
+                        <p class="text-gray-400 mt-2">Tente expandir seus horizontes (ou seus filtros).</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <!-- Other Sections -->
+        <section id="fraud-tips" class="mt-20 glass-effect p-8 rounded-lg">
+            <h2 class="text-3xl font-bold text-center text-secondary mb-8">Dicas Antifraude: Proteja Seu Sonho</h2>
+            <div class="grid md:grid-cols-2 gap-8 text-gray-300">
+                 <div>
+                    <h3 class="font-bold text-lg mb-2 text-white">1. Desconfie de promessas fáceis</h3>
+                    <p>Bolsas de 100% garantidas sem processo seletivo ou com taxas "administrativas" pagas antecipadamente são um grande sinal de alerta.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg mb-2 text-white">2. Verifique a instituição</h3>
+                    <p>Sempre confirme se a universidade é credenciada pelo MEC. Consulte o site oficial do <a href="https://emec.mec.gov.br/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">e-MEC</a>.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="mt-20 text-center">
+             <h2 class="text-3xl font-bold text-white mb-4">Mande sua Ideia</h2>
+             <p class="max-w-2xl mx-auto mb-8 text-gray-400">Sua opinião constrói o futuro da Estima. Envie sugestões, críticas ou relate um problema.</p>
+             <button id="openContactModal" class="highlight-button rounded-lg py-3 px-8 font-semibold">Entrar em Contato</button>
+        </section>
+    </main>
+
+    <!-- Vocational Quiz Floating Button -->
+    <button id="openQuizBtn" class="fixed bottom-6 right-6 bg-secondary hover:bg-pink-600 transition-colors text-white font-bold p-4 rounded-full shadow-lg z-50 flex items-center space-x-3" aria-label="Abrir quiz vocacional">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+        <span class="hidden sm:block pr-2">Quiz Vocacional</span>
+    </button>
+
+    <!-- Modals Container -->
+    <div id="modalContainer" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(17, 24, 39, 0.7);">
+        <!-- Modal content will be injected here -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-20 border-t border-gray-800 py-8">
+        <div class="container mx-auto text-center text-gray-500 text-sm">
+            <p class="font-bold text-lg text-white tracking-wider mb-2">Estima</p>
+            <p>Construído com ❤️ em Recife para o mundo.</p>
+            <p>&copy; 2025. Um projeto de inclusão digital.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS for Interactive Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Main Application Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const universities = [
+              { id: 1, name: "UniFBV Wyden", logo: "https://placehold.co/100x100/0033a0/FFFFFF?text=UniFBV", location: { bairro: "Imbiribeira", zona: "Sul", coords: { lat: -8.1033, lng: -34.9083 } }, courses: ["Direito", "Engenharia Civil", "Psicologia", "Odontologia", "Sistemas de Informação"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 50 }, { type: "financiamento", discount: 0 }], monthly_cost: 1250.00, pros: ["Forte em tecnologia e cursos de engenharia", "Boa infraestrutura com laboratórios modernos", "Fácil acesso pela Av. Mascarenhas de Morais"], cons: ["Mensalidades elevadas em alguns cursos de saúde", "Poucas opções de alimentação no entorno"], mec_score: 4 },
+              { id: 2, name: "UNINASSAU", logo: "https://placehold.co/100x100/ff6600/FFFFFF?text=UNINASSAU", location: { bairro: "Graças", zona: "Norte", coords: { lat: -8.0442, lng: -34.8981 } }, courses: ["Direito", "Enfermagem", "Jornalismo", "Publicidade", "Fisioterapia", "Administração"], scholarships: [{ type: "prouni", discount: 100 }, { type: "educamaisbrasil", discount: 50 }, { type: "financiamento", discount: 0 }], monthly_cost: 980.00, pros: ["Grande variedade de cursos em todas as áreas", "Localização central e vários campi espalhados", "Preços competitivos e muitas opções de bolsa"], cons: ["Estrutura pode variar muito entre os blocos", "Campus principal pode ser bem cheio em horários de pico"], mec_score: 4 },
+              { id: 3, name: "Universidade Católica de Pernambuco (UNICAP)", logo: "https://placehold.co/100x100/a62128/FFFFFF?text=UNICAP", location: { bairro: "Boa Vista", zona: "Central", coords: { lat: -8.0581, lng: -34.8921 } }, courses: ["Direito", "Arquitetura", "Filosofia", "Ciência da Computação", "Engenharia Civil", "Jornalismo"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsasocial", discount: 50 }], monthly_cost: 1600.00, pros: ["Tradição e excelência acadêmica reconhecida", "Biblioteca de referência e campus bem estruturado", "Forte em cursos de humanas e direito"], cons: ["Custo mais elevado da região", "Acesso pode ser congestionado em horários de pico"], mec_score: 5 },
+              { id: 4, name: "Estácio Recife", logo: "https://placehold.co/100x100/009cde/FFFFFF?text=Estácio", location: { bairro: "Ilha do Leite", zona: "Central", coords: { lat: -8.0614, lng: -34.8967 } }, courses: ["Administração", "Ciências Contábeis", "Gestão de RH", "Educação Física", "Sistemas de Informação"], scholarships: [{ type: "prouni", discount: 100 }, { type: "bolsadetransferencia", discount: 60 }, { type: "financiamento", discount: 0 }], monthly_cost: 850.00, pros: ["Flexibilidade de horários (EAD e presencial)", "Mensalidades entre as mais acessíveis de Recife", "Foco em cursos de gestão e negócios"], cons: ["Infraestrutura mais simples comparada a outras", "Alguns cursos possuem poucas turmas presenciais"], mec_score: 3 }
+            ];
+            
+            const universityResults = document.getElementById('universityResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const noResults = document.getElementById('noResults');
+            const modalContainer = document.getElementById('modalContainer');
+            let userLocation = { lat: -8.1299, lng: -34.9355 }; 
+            let filters = { course: '', maxCost: 3000, scholarship: 'todas', radius: 50 };
+            
+            let map, userMarker, universityMarkers = [];
+            const userIcon = L.divIcon({ className: 'user-location-marker', html: '<div class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span></div>' });
+            const uniIcon = L.divIcon({ className: 'uni-location-marker', html: '<div class="w-2.5 h-2.5 bg-pink-500 rounded-full border border-white/50"></div>' });
+
+            function initMap() {
+                map = L.map('interactiveMap', { zoomControl: false }).setView([userLocation.lat, userLocation.lng], 12);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                }).addTo(map);
+                updateUserMarker();
+            }
+
+            function updateUserMarker() {
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon }).addTo(map)
+                    .bindPopup('<b>Sua Localização</b>').openPopup();
+                map.setView([userLocation.lat, userLocation.lng], 13);
+            }
+
+            const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            };
+
+            function renderUniversityCards(filteredUnis) {
+                universityResults.innerHTML = '';
+                noResults.classList.toggle('hidden', filteredUnis.length > 0);
+
+                filteredUnis.forEach(uni => {
+                    const distance = getDistanceInKm(userLocation.lat, userLocation.lng, uni.location.coords.lat, uni.location.coords.lng);
+                    const transportCost = distance * 0.50 * 2 * 22;
+                    const totalCost = uni.monthly_cost + transportCost;
+
+                    const card = document.createElement('div');
+                    card.className = 'glass-effect rounded-lg overflow-hidden transform hover:-translate-y-1 transition-transform duration-300 flex flex-col cursor-pointer';
+                    card.dataset.id = uni.id;
+                    card.innerHTML = `
+                        <div class="p-5 flex-grow">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <img src="${uni.logo}" alt="Logo da ${uni.name}" class="h-16 w-16 object-contain rounded-md bg-gray-900/50 p-1">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">${uni.name}</h3>
+                                    <p class="text-sm text-gray-400">${uni.location.bairro}</p>
+                                </div>
+                            </div>
+                            <div class="text-amber-400 text-xl mb-4">${'★'.repeat(uni.mec_score)}<span class="text-gray-600">${'★'.repeat(5 - uni.mec_score)}</span></div>
+                            <div class="text-sm space-y-1 text-gray-300">
+                                <p><strong>Distância:</strong> ${distance.toFixed(1)} km</p>
+                                <p><strong>Mensalidade:</strong> R$ ${uni.monthly_cost.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 bg-black/20 border-t border-white/10">
+                            <p class="text-sm text-gray-400">Custo Total Estimado</p>
+                            <p class="text-2xl font-bold text-primary">R$ ${totalCost.toFixed(2)}<span class="text-base font-normal text-gray-400">/mês</span></p>
+                        </div>
+                    `;
+                    universityResults.appendChild(card);
+                    card.addEventListener('click', () => openDetailsModal(uni.id));
+                });
+                resultsCount.textContent = filteredUnis.length;
+            }
+            
+            function updateMap(filteredUnis) {
+                universityMarkers.forEach(marker => map.removeLayer(marker));
+                universityMarkers = [];
+                filteredUnis.forEach(uni => {
+                    const marker = L.marker([uni.location.coords.lat, uni.location.coords.lng], { icon: uniIcon }).addTo(map)
+                        .bindPopup(`<b>${uni.name}</b>`);
+                    universityMarkers.push(marker);
+                });
+            }
+
+            function applyFilters() {
+                const result = universities.filter(uni => 
+                    (filters.course === '' || uni.courses.some(c => c.toLowerCase().includes(filters.course.toLowerCase()))) &&
+                    (uni.monthly_cost <= filters.maxCost) &&
+                    (filters.scholarship === 'todas' || uni.scholarships.some(s => s.type === filters.scholarship)) &&
+                    (getDistanceInKm(userLocation.lat, userLocation.lng, uni.location.coords.lat, uni.location.coords.lng) <= filters.radius)
+                );
+                renderUniversityCards(result);
+                updateMap(result);
+            }
+
+            function openModal(content) {
+                modalContainer.innerHTML = content;
+                modalContainer.classList.remove('hidden');
+                modalContainer.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                modalContainer.querySelector('.close-modal-btn')?.addEventListener('click', closeModal);
+            }
+
+            function closeModal() {
+                modalContainer.classList.add('hidden');
+                modalContainer.classList.remove('flex');
+                document.body.style.overflow = 'auto';
+            }
+
+            function openDetailsModal(uniId) {
+                const uni = universities.find(u => u.id === uniId);
+                const content = `
+                    <div class="glass-effect rounded-lg border border-white/10 max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+                        <button class="close-modal-btn absolute top-4 right-4 text-2xl text-gray-400 hover:text-white">&times;</button>
+                        <div class="p-8">
+                            <h2 class="text-3xl font-bold text-primary mb-4">${uni.name}</h2>
+                            <p class="text-gray-400 mb-6">Nota MEC: <span class="text-amber-400 text-xl">${'★'.repeat(uni.mec_score)}</span><span class="text-gray-600">${'★'.repeat(5 - uni.mec_score)}</span></p>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="font-bold text-lg text-green-400 mb-2">Prós</h3>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-300">${uni.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-red-400 mb-2">Contras</h3>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-300">${uni.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                openModal(content);
+            }
+            
+            document.getElementById('courseFilter').addEventListener('input', e => { filters.course = e.target.value; applyFilters(); });
+            document.getElementById('costFilter').addEventListener('input', e => { filters.maxCost = parseInt(e.target.value); document.getElementById('costValue').textContent = `R$ ${filters.maxCost}`; applyFilters(); });
+            document.getElementById('scholarshipFilter').addEventListener('change', e => { filters.scholarship = e.target.value; applyFilters(); });
+            document.getElementById('distanceFilter').addEventListener('input', e => { filters.radius = parseInt(e.target.value); document.getElementById('distanceValue').textContent = `${filters.radius} km`; applyFilters(); });
+
+            document.getElementById('locateUserBtn').addEventListener('click', () => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(position => {
+                        userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                        updateUserMarker();
+                        applyFilters();
+                    }, () => alert('Não foi possível obter sua localização. Verifique as permissões do navegador.'));
+                } else {
+                    alert('Geolocalização não é suportada por este navegador.');
+                }
+            });
+
+            initMap();
+            applyFilters();
+        });
+    </script>
+</body>
+</html>
